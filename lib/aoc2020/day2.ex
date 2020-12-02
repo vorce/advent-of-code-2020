@@ -55,4 +55,39 @@ defmodule Aoc2020.Day2 do
 
     %{range: from..to, char: char, password: pwd}
   end
+
+  def parse2!(path) do
+    path
+    |> File.read!()
+    |> String.split("\n")
+    |> Enum.reject(fn l -> l == "" end)
+    |> Enum.map(&parse_line2/1)
+  end
+
+  def valid2(passwords) do
+    passwords
+    |> Enum.filter(&valid_password2/1)
+  end
+
+  def valid_password2(%{position1: pos1, position2: pos2, char: character, password: password}) do
+    codepoints = String.graphemes(password)
+    pos1_char = Enum.at(codepoints, pos1 - 1)
+    pos2_char = Enum.at(codepoints, pos2 - 1)
+
+    cond do
+      pos1_char == character and pos2_char != character -> true
+      pos2_char == character and pos1_char != character -> true
+      true -> false
+    end
+  end
+
+  def parse_line2(line) do
+    [pos1, rest] = String.split(line, "-", parts: 2)
+    pos1 = String.to_integer(pos1)
+    [pos2, char, pwd] = String.split(rest, " ", parts: 3)
+    pos2 = String.to_integer(pos2)
+    char = String.replace_suffix(char, ":", "")
+
+    %{position1: pos1, position2: pos2, char: char, password: pwd}
+  end
 end
