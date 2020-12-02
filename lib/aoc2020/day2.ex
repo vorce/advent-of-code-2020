@@ -24,16 +24,31 @@ defmodule Aoc2020.Day2 do
 
   """
 
-  def valid(passwords) do
-    passwords
-    |> Enum.filter(&valid_password/1)
+  def list_valid_passwords(path, part) do
+    part1_validation_fn = &valid_password/1
+    part2_validation_fn = &valid_password2/1
+
+    validation_fn =
+      case part do
+        :part1 -> part1_validation_fn
+        :part2 -> part2_validation_fn
+      end
+
+    path
+    |> parse!()
+    |> validate(validation_fn)
   end
 
-  def valid_password(%{range: range, char: character, password: password}) do
+  def validate(passwords, validatefn) do
+    passwords
+    |> Enum.filter(validatefn)
+  end
+
+  def valid_password(%{position1: pos1, position2: pos2, char: character, password: password}) do
     codepoints = String.graphemes(password)
     character_count = Enum.count(codepoints, fn c -> c == character end)
 
-    character_count in range
+    character_count in pos1..pos2
   end
 
   def parse!(path) do
@@ -42,31 +57,6 @@ defmodule Aoc2020.Day2 do
     |> String.split("\n")
     |> Enum.reject(fn l -> l == "" end)
     |> Enum.map(&parse_line/1)
-  end
-
-  # "15-16 l: klfbblslvjclmlnqklvg" => %{range: 15..16, char: "l", password: "klfbblslvjclmlnqklvg"}
-  @spec parse_line(binary) :: map
-  def parse_line(line) do
-    [from, rest] = String.split(line, "-", parts: 2)
-    from = String.to_integer(from)
-    [to, char, pwd] = String.split(rest, " ", parts: 3)
-    to = String.to_integer(to)
-    char = String.replace_suffix(char, ":", "")
-
-    %{range: from..to, char: char, password: pwd}
-  end
-
-  def parse2!(path) do
-    path
-    |> File.read!()
-    |> String.split("\n")
-    |> Enum.reject(fn l -> l == "" end)
-    |> Enum.map(&parse_line2/1)
-  end
-
-  def valid2(passwords) do
-    passwords
-    |> Enum.filter(&valid_password2/1)
   end
 
   def valid_password2(%{position1: pos1, position2: pos2, char: character, password: password}) do
@@ -81,7 +71,7 @@ defmodule Aoc2020.Day2 do
     end
   end
 
-  def parse_line2(line) do
+  def parse_line(line) do
     [pos1, rest] = String.split(line, "-", parts: 2)
     pos1 = String.to_integer(pos1)
     [pos2, char, pwd] = String.split(rest, " ", parts: 3)
