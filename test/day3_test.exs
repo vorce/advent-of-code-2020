@@ -214,10 +214,25 @@ defmodule Aoc2020.Day3Test do
       result = Day3.plot_slope(map, {0, 0}, slope, [])
       assert length(result) == map.height - 1
       # 450: That's not the right answer; your answer is too high
-      assert Enum.count(result, fn terrain -> terrain == "X" end) == 225
+      assert Day3.tree_count(result) == 225
     end
   end
 
   describe "part 2" do
+    test "check_slopes/2" do
+      map =
+        File.read!("test/data/day3_input.txt")
+        |> String.split("\n")
+        |> Enum.reject(fn line -> line == "" end)
+        |> Day3.parse_map()
+
+      slopes = [{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}]
+
+      result = Day3.check_slopes(map, slopes)
+
+      assert result == %{{1, 1} => 60, {1, 2} => 25, {3, 1} => 225, {5, 1} => 57, {7, 1} => 58}
+      multiplied_trees = Enum.reduce(result, 1, fn {_slope, trees}, acc -> trees * acc end)
+      assert multiplied_trees == 1_115_775_000
+    end
   end
 end

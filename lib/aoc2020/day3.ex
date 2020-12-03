@@ -94,4 +94,18 @@ defmodule Aoc2020.Day3 do
       "#" -> "X"
     end
   end
+
+  def tree_count(terrain) do
+    Enum.count(terrain, fn t -> t == "X" end)
+  end
+
+  def check_slopes(map, slopes) do
+    slopes
+    |> Enum.reduce(%{}, fn slope, acc ->
+      Map.put(acc, slope, plot_slope(map, {0, 0}, slope, []))
+    end)
+    |> Enum.into(%{}, fn {slope, terrain} ->
+      {slope, tree_count(terrain)}
+    end)
+  end
 end
