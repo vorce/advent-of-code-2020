@@ -42,4 +42,122 @@ defmodule Aoc2020.Day4 do
       true -> true
     end
   end
+
+  def valid_passport2?(%__MODULE__{} = passport) do
+    valid_passport_field?(:byr, passport.byr) and
+      valid_passport_field?(:iyr, passport.iyr) and
+      valid_passport_field?(:eyr, passport.eyr) and
+      valid_passport_field?(:hgt, passport.hgt) and
+      valid_passport_field?(:hcl, passport.hcl) and
+      valid_passport_field?(:ecl, passport.ecl) and
+      valid_passport_field?(:pid, passport.pid)
+  end
+
+  def valid_passport_field?(:cid, _), do: true
+  def valid_passport_field?(_, nil), do: false
+
+  def valid_passport_field?(:byr, val) do
+    case Integer.parse(val) do
+      {i, ""} when i >= 1920 and i <= 2002 ->
+        true
+
+      _ ->
+        IO.inspect(val, label: "invalid byr")
+        false
+    end
+  end
+
+  def valid_passport_field?(:iyr, val) do
+    case Integer.parse(val) do
+      {i, ""} when i >= 2010 and i <= 2020 ->
+        true
+
+      _ ->
+        IO.inspect(val, label: "invalid iyr")
+        false
+    end
+  end
+
+  def valid_passport_field?(:eyr, val) do
+    case Integer.parse(val) do
+      {i, ""} when i >= 2020 and i <= 2030 ->
+        true
+
+      _ ->
+        IO.inspect(val, label: "invalid eyr")
+        false
+    end
+  end
+
+  def valid_passport_field?(:hgt, val) do
+    unit =
+      String.codepoints(val) |> Enum.reverse() |> Enum.take(2) |> Enum.join() |> String.reverse()
+
+    case unit do
+      "cm" ->
+        val
+        |> height_without_unit()
+        |> valid_cm?()
+
+      "in" ->
+        val
+        |> height_without_unit()
+        |> valid_in?()
+
+      _ ->
+        IO.inspect({val, unit}, label: "invalid hgt")
+        false
+    end
+  end
+
+  def valid_passport_field?(:hcl, val) do
+    cp = String.codepoints(val)
+    valid_chars = ~r/^[a-f]|[0-9]/
+
+    if length(cp) == 7 and hd(cp) == "#" do
+      Enum.drop(cp, 1)
+      |> Enum.map(fn c -> Regex.match?(valid_chars, c) end)
+      |> Enum.all?(&(&1 == true))
+    else
+      false
+    end
+  end
+
+  def valid_passport_field?(:ecl, val)
+      when val in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"],
+      do: true
+
+  def valid_passport_field?(:ecl, _val), do: false
+
+  def valid_passport_field?(:pid, val) do
+    with 9 <- String.length(val),
+         {_i, ""} <- Integer.parse(val) do
+      true
+    else
+      _ -> false
+    end
+  end
+
+  defp height_without_unit(height) do
+    height
+    |> String.codepoints()
+    |> Enum.reverse()
+    |> Enum.drop(2)
+    |> Enum.reverse()
+    |> Enum.join()
+  end
+
+  def valid_cm?(without_unit) do
+    case Integer.parse(without_unit) do
+      {i, ""} when i >= 150 and i <= 193 -> true
+      _ -> false
+    end
+  end
+
+  def valid_in?(without_unit) do
+    case Integer.parse(without_unit) do
+      {i, ""} when i >= 59 and i <= 76 -> true
+      _ -> false
+    end
+  end
 end
