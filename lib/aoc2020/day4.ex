@@ -56,38 +56,11 @@ defmodule Aoc2020.Day4 do
   def valid_passport_field?(:cid, _), do: true
   def valid_passport_field?(_, nil), do: false
 
-  def valid_passport_field?(:byr, val) do
-    case Integer.parse(val) do
-      {i, ""} when i >= 1920 and i <= 2002 ->
-        true
+  def valid_passport_field?(:byr, val), do: year_within?(val, 1920, 2002)
 
-      _ ->
-        IO.inspect(val, label: "invalid byr")
-        false
-    end
-  end
+  def valid_passport_field?(:iyr, val), do: year_within?(val, 2010, 2020)
 
-  def valid_passport_field?(:iyr, val) do
-    case Integer.parse(val) do
-      {i, ""} when i >= 2010 and i <= 2020 ->
-        true
-
-      _ ->
-        IO.inspect(val, label: "invalid iyr")
-        false
-    end
-  end
-
-  def valid_passport_field?(:eyr, val) do
-    case Integer.parse(val) do
-      {i, ""} when i >= 2020 and i <= 2030 ->
-        true
-
-      _ ->
-        IO.inspect(val, label: "invalid eyr")
-        false
-    end
-  end
+  def valid_passport_field?(:eyr, val), do: year_within?(val, 2020, 2030)
 
   def valid_passport_field?(:hgt, val) do
     unit =
@@ -105,7 +78,6 @@ defmodule Aoc2020.Day4 do
         |> valid_in?()
 
       _ ->
-        IO.inspect({val, unit}, label: "invalid hgt")
         false
     end
   end
@@ -135,6 +107,17 @@ defmodule Aoc2020.Day4 do
       true
     else
       _ -> false
+    end
+  end
+
+  @spec year_within?(year_str :: binary, ge :: integer, le :: integer) :: boolean
+  def year_within?(year_str, ge, le) do
+    case Integer.parse(year_str) do
+      {i, ""} when i >= ge and i <= le ->
+        true
+
+      _ ->
+        false
     end
   end
 
