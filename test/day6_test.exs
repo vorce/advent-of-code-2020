@@ -22,14 +22,14 @@ defmodule Aoc2020.Day6Test do
   ]
 
   describe "part 1" do
-    test "count_group/1" do
-      assert Day6.count_group(["abc"]) |> MapSet.size() == 3
-      assert Day6.count_group(["a", "a", "a"]) |> MapSet.size() == 1
-      assert Day6.count_group(["ab", "ac"]) |> MapSet.size() == 3
+    test "combined_answers/1" do
+      assert Day6.combined_answers(["abc"]) |> MapSet.size() == 3
+      assert Day6.combined_answers(["a", "a", "a"]) |> MapSet.size() == 1
+      assert Day6.combined_answers(["ab", "ac"]) |> MapSet.size() == 3
     end
 
     test "sum_answers/2 example" do
-      assert Day6.sum_answers(@part1_example_input, &Day6.count_group/1) == 11
+      assert Day6.sum_answers(@part1_example_input, &Day6.combined_answers/1) == 11
     end
 
     test "sum_answers/2 on input file" do
@@ -38,19 +38,19 @@ defmodule Aoc2020.Day6Test do
         |> File.read!()
         |> String.split("\n")
 
-      assert Day6.sum_answers(input, &Day6.count_group/1) == 6735
+      assert Day6.sum_answers(input, &Day6.combined_answers/1) == 6735
     end
   end
 
   describe "part 2" do
-    test "count_group2/1" do
-      assert Day6.count_group2(["abc"]) |> MapSet.size() == 3
-      assert Day6.count_group2(["a", "b", "c"]) |> MapSet.size() == 0
-      assert Day6.count_group2(["ab", "ac"]) |> MapSet.size() == 1
+    test "common_answers/1" do
+      assert Day6.common_answers(["abc"]) |> MapSet.size() == 3
+      assert Day6.common_answers(["a", "b", "c"]) |> MapSet.size() == 0
+      assert Day6.common_answers(["ab", "ac"]) |> MapSet.size() == 1
     end
 
     test "sum_answers/2 example" do
-      assert Day6.sum_answers(@part1_example_input, &Day6.count_group2/1) == 6
+      assert Day6.sum_answers(@part1_example_input, &Day6.common_answers/1) == 6
     end
 
     test "sum_answers/2 on input file" do
@@ -59,7 +59,7 @@ defmodule Aoc2020.Day6Test do
         |> File.read!()
         |> String.split("\n")
 
-      assert Day6.sum_answers(input, &Day6.count_group2/1) == 3221
+      assert Day6.sum_answers(input, &Day6.common_answers/1) == 3221
     end
   end
 end

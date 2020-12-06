@@ -3,7 +3,7 @@ defmodule Aoc2020.Day6 do
   Day 6
   """
 
-  def count_group(group) do
+  def combined_answers(group) do
     Enum.reduce(group, MapSet.new(), fn questions, acc ->
       questions
       |> person_questions()
@@ -27,7 +27,7 @@ defmodule Aoc2020.Day6 do
     |> Enum.sum()
   end
 
-  def count_group2(group) do
+  def common_answers(group) do
     [first | rest] = group
 
     Enum.reduce(rest, person_questions(first), fn questions, acc ->
