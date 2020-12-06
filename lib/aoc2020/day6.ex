@@ -1,0 +1,49 @@
+defmodule Aoc2020.Day6 do
+  @moduledoc """
+  Day 6
+  """
+
+  def count_group(group) do
+    Enum.reduce(group, MapSet.new(), fn questions, acc ->
+      questions
+      |> person_questions()
+      |> MapSet.union(acc)
+    end)
+  end
+
+  def person_questions(questions) do
+    questions
+    |> String.codepoints()
+    |> Enum.reduce(MapSet.new(), fn question, acc ->
+      MapSet.put(acc, question)
+    end)
+  end
+
+  def sum_answers(input) do
+    input
+    |> Enum.chunk_by(fn i -> i == "" end)
+    |> Enum.reject(fn group -> group == [""] end)
+    |> Enum.map(&count_group/1)
+    |> Enum.map(&MapSet.size/1)
+    |> Enum.sum()
+  end
+
+  def count_group2(group) do
+    [first | rest] = group
+
+    Enum.reduce(rest, person_questions(first), fn questions, acc ->
+      questions
+      |> person_questions()
+      |> MapSet.intersection(acc)
+    end)
+  end
+
+  def sum_answers2(input) do
+    input
+    |> Enum.chunk_by(fn i -> i == "" end)
+    |> Enum.reject(fn group -> group == [""] end)
+    |> Enum.map(&count_group2/1)
+    |> Enum.map(&MapSet.size/1)
+    |> Enum.sum()
+  end
+end
