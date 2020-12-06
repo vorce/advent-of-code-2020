@@ -23,8 +23,7 @@ defmodule Aoc2020.Day6 do
     input
     |> Enum.chunk_by(fn i -> i == "" end)
     |> Enum.reject(fn group -> group == [""] end)
-    |> Enum.map(group_count_fn)
-    |> Enum.map(&MapSet.size/1)
+    |> Enum.map(fn group -> group |> group_count_fn.() |> MapSet.size() end)
     |> Enum.sum()
   end
 
