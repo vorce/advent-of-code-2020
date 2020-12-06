@@ -28,17 +28,17 @@ defmodule Aoc2020.Day6Test do
       assert Day6.count_group(["ab", "ac"]) |> MapSet.size() == 3
     end
 
-    test "sum_answers/1" do
-      assert Day6.sum_answers(@part1_example_input) == 11
+    test "sum_answers/2 example" do
+      assert Day6.sum_answers(@part1_example_input, &Day6.count_group/1) == 11
     end
 
-    test "sum_answers/1 on input file" do
+    test "sum_answers/2 on input file" do
       input =
         "test/data/day6_input.txt"
         |> File.read!()
         |> String.split("\n")
 
-      assert Day6.sum_answers(input) == 6735
+      assert Day6.sum_answers(input, &Day6.count_group/1) == 6735
     end
   end
 
@@ -49,17 +49,17 @@ defmodule Aoc2020.Day6Test do
       assert Day6.count_group2(["ab", "ac"]) |> MapSet.size() == 1
     end
 
-    test "sum_answers2/1" do
-      assert Day6.sum_answers2(@part1_example_input) == 6
+    test "sum_answers/2 example" do
+      assert Day6.sum_answers(@part1_example_input, &Day6.count_group2/1) == 6
     end
 
-    test "sum_answers2/1 on input file" do
+    test "sum_answers/2 on input file" do
       input =
         "test/data/day6_input.txt"
         |> File.read!()
         |> String.split("\n")
 
-      assert Day6.sum_answers2(input) == 3221
+      assert Day6.sum_answers(input, &Day6.count_group2/1) == 3221
     end
   end
 end

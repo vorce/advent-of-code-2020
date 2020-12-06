@@ -19,11 +19,11 @@ defmodule Aoc2020.Day6 do
     end)
   end
 
-  def sum_answers(input) do
+  def sum_answers(input, group_count_fn) do
     input
     |> Enum.chunk_by(fn i -> i == "" end)
     |> Enum.reject(fn group -> group == [""] end)
-    |> Enum.map(&count_group/1)
+    |> Enum.map(group_count_fn)
     |> Enum.map(&MapSet.size/1)
     |> Enum.sum()
   end
@@ -36,14 +36,5 @@ defmodule Aoc2020.Day6 do
       |> person_questions()
       |> MapSet.intersection(acc)
     end)
-  end
-
-  def sum_answers2(input) do
-    input
-    |> Enum.chunk_by(fn i -> i == "" end)
-    |> Enum.reject(fn group -> group == [""] end)
-    |> Enum.map(&count_group2/1)
-    |> Enum.map(&MapSet.size/1)
-    |> Enum.sum()
   end
 end
