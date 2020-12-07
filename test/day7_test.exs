@@ -3,18 +3,6 @@ defmodule Aoc2020.Day7Test do
 
   alias Aoc2020.Day7
 
-  #   @part1_example_rules %{
-  #     "light red" => %{"bright white" => 1, "muted yellow" => 2},
-  # dark orange bags contain 3 bright white bags, 4 muted yellow bags.
-  # bright white bags contain 1 shiny gold bag.
-  # muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
-  # shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
-  # dark olive bags contain 3 faded blue bags, 4 dotted black bags.
-  # vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
-  # faded blue bags contain no other bags.
-  # dotted black bags contain no other bags.
-  #   }
-
   @part1_example [
     "light red bags contain 1 bright white bag, 2 muted yellow bags.",
     "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
@@ -26,6 +14,7 @@ defmodule Aoc2020.Day7Test do
     "faded blue bags contain no other bags.",
     "dotted black bags contain no other bags."
   ]
+
   describe "part 1" do
     test "parse!/1 example" do
       assert Day7.parse!(@part1_example) == %{
