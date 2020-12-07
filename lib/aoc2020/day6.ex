@@ -19,9 +19,7 @@ defmodule Aoc2020.Day6 do
   def person_questions(questions) do
     questions
     |> String.codepoints()
-    |> Enum.reduce(MapSet.new(), fn question, acc ->
-      MapSet.put(acc, question)
-    end)
+    |> MapSet.new()
   end
 
   @doc """
