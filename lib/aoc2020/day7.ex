@@ -7,25 +7,6 @@ defmodule Aoc2020.Day7 do
     Enum.into(input, %{}, &parse_line/1)
   end
 
-  def carry_in([], _bag_rules, acc), do: Enum.uniq(acc)
-
-  def carry_in(bags, bag_rules, acc) do
-    valid_bags =
-      bag_rules
-      |> Enum.filter(fn {_k, value} -> bag_within?(value, bags) end)
-      |> Enum.map(fn {k, _v} -> k end)
-
-    carry_in(valid_bags, bag_rules, valid_bags ++ acc)
-  end
-
-  defp bag_within?(%{none: 0}, _), do: false
-
-  defp bag_within?(bag_rules, candidates) do
-    bag_rules
-    |> Enum.reject(fn {_k, v} -> v == 0 end)
-    |> Enum.any?(fn {bag, _} -> bag in candidates end)
-  end
-
   def parse_line(line) do
     [key, val] = line |> String.trim() |> String.split(" contain ")
     {strip_bag(key), parse_val(val)}
@@ -57,6 +38,23 @@ defmodule Aoc2020.Day7 do
     {description, count}
   end
 
+  def bag_colors([], _bag_rules, acc), do: acc
+
+  def bag_colors(bags, bag_rules, acc) do
+    valid_bags =
+      bag_rules
+      |> Enum.filter(fn {_k, value} -> bag_within?(value, bags) end)
+      |> Enum.map(fn {k, _v} -> k end)
+
+    bag_colors(valid_bags, bag_rules, valid_bags |> MapSet.new() |> MapSet.union(acc))
+  end
+
+  defp bag_within?(%{none: 0}, _), do: false
+
+  defp bag_within?(bag_rules, candidates) do
+    Enum.any?(bag_rules, fn {bag, _} -> bag in candidates end)
+  end
+
   # So, a single shiny gold bag must contain:
   # 1 dark olive bag (and the 7 bags within it)
   # plus 2 vibrant plum bags (and the 11 bags within each of those):
@@ -64,21 +62,28 @@ defmodule Aoc2020.Day7 do
   # ...
   # step1: shiny gold => %{"dark olive" => 1, "vibrant plum" => 2}
   # step2: 1 + (1 * bag_count("dark olive")) + ...
-  def bag_count(bag, bag_rules) do
+  def required_bag_count(bag, bag_rules) do
     sub_bags = Map.get(bag_rules, bag)
 
     case sub_bags do
       %{none: 0} ->
         0
 
-      other ->
-        top_level = other |> Enum.map(fn {_k, v} -> v end) |> Enum.sum()
+      sub ->
+        top_level = top_level_count(sub)
 
-        Enum.map(other, fn {sub_bag, number} ->
-          number * bag_count(sub_bag, bag_rules)
-        end)
-        |> Enum.sum()
-        |> Kernel.+(top_level)
+        bags_inside =
+          sub
+          |> Enum.map(fn {sub_bag, size} ->
+            size * required_bag_count(sub_bag, bag_rules)
+          end)
+          |> Enum.sum()
+
+        bags_inside + top_level
     end
+  end
+
+  defp top_level_count(bags) do
+    bags |> Enum.map(fn {_k, v} -> v end) |> Enum.sum()
   end
 end

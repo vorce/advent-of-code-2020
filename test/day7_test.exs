@@ -35,11 +35,12 @@ defmodule Aoc2020.Day7Test do
                {"light red", %{"bright white" => 1, "muted yellow" => 2}}
     end
 
-    test "carry_in/2" do
+    test "bag_colors/3" do
       bag_rules = Day7.parse!(@part1_example)
-      result = Day7.carry_in(["shiny gold"], bag_rules, [])
 
-      assert length(result) == 4
+      result = Day7.bag_colors(MapSet.new(["shiny gold"]), bag_rules, MapSet.new())
+
+      assert MapSet.size(result) == 4
 
       assert result |> Enum.sort() == [
                "bright white",
@@ -49,7 +50,7 @@ defmodule Aoc2020.Day7Test do
              ]
     end
 
-    test "carry_in/2 on input file" do
+    test "bag_colors/3 on input file" do
       bag_rules =
         "test/data/day7_input.txt"
         |> File.stream!()
@@ -58,31 +59,31 @@ defmodule Aoc2020.Day7Test do
 
       assert map_size(bag_rules) == 594
 
-      result = Day7.carry_in(["shiny gold"], bag_rules, [])
+      result = Day7.bag_colors(MapSet.new(["shiny gold"]), bag_rules, MapSet.new())
 
       # 26: That's not the right answer.
       # 436: That's not the right answer; your answer is too high.
-      assert length(result) == 254
+      assert MapSet.size(result) == 254
     end
   end
 
   describe "part 2" do
-    test "bag_count/2 on example input" do
+    test "required_bag_count/2 on example input" do
       bag_rules = Day7.parse!(@part1_example)
 
-      result = Day7.bag_count("shiny gold", bag_rules)
+      result = Day7.required_bag_count("shiny gold", bag_rules)
 
       assert result == 32
     end
 
-    test "bag_count/2 on input file" do
+    test "required_bag_count/2 on input file" do
       bag_rules =
         "test/data/day7_input.txt"
         |> File.stream!()
         |> Stream.map(&Day7.parse_line/1)
         |> Enum.into(%{})
 
-      result = Day7.bag_count("shiny gold", bag_rules)
+      result = Day7.required_bag_count("shiny gold", bag_rules)
 
       assert result == 6006
     end
