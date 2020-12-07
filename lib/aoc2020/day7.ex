@@ -56,4 +56,29 @@ defmodule Aoc2020.Day7 do
 
     {description, count}
   end
+
+  # So, a single shiny gold bag must contain:
+  # 1 dark olive bag (and the 7 bags within it)
+  # plus 2 vibrant plum bags (and the 11 bags within each of those):
+  #   1 + 1*7 + 2 + 2*11 = 32 bags!
+  # ...
+  # step1: shiny gold => %{"dark olive" => 1, "vibrant plum" => 2}
+  # step2: 1 + (1 * bag_count("dark olive")) + ...
+  def bag_count(bag, bag_rules) do
+    sub_bags = Map.get(bag_rules, bag)
+
+    case sub_bags do
+      %{none: 0} ->
+        0
+
+      other ->
+        top_level = other |> Enum.map(fn {_k, v} -> v end) |> Enum.sum()
+
+        Enum.map(other, fn {sub_bag, number} ->
+          number * bag_count(sub_bag, bag_rules)
+        end)
+        |> Enum.sum()
+        |> Kernel.+(top_level)
+    end
+  end
 end

@@ -78,5 +78,24 @@ defmodule Aoc2020.Day7Test do
   end
 
   describe "part 2" do
+    test "bag_count/2 on example input" do
+      bag_rules = Day7.parse!(@part1_example)
+
+      result = Day7.bag_count("shiny gold", bag_rules)
+
+      assert result == 32
+    end
+
+    test "bag_count/2 on input file" do
+      bag_rules =
+        "test/data/day7_input.txt"
+        |> File.stream!()
+        |> Stream.map(&Day7.parse_line/1)
+        |> Enum.into(%{})
+
+      result = Day7.bag_count("shiny gold", bag_rules)
+
+      assert result == 6006
+    end
   end
 end
