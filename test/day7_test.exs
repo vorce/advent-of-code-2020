@@ -43,12 +43,12 @@ defmodule Aoc2020.Day7Test do
 
     test "parse_line/1" do
       assert Day7.parse_line("light red bags contain 1 bright white bag, 2 muted yellow bags.") ==
-               %{"light red" => %{"bright white" => 1, "muted yellow" => 2}}
+               {"light red", %{"bright white" => 1, "muted yellow" => 2}}
     end
 
     test "carry_in/2" do
       bag_rules = Day7.parse!(@part1_example)
-      result = Day7.carry_in("shiny gold", bag_rules, [])
+      result = Day7.carry_in(["shiny gold"], bag_rules, [])
 
       assert length(result) == 4
 
@@ -69,10 +69,11 @@ defmodule Aoc2020.Day7Test do
 
       assert map_size(bag_rules) == 594
 
-      result = Day7.carry_in("shiny gold", bag_rules, [])
+      result = Day7.carry_in(["shiny gold"], bag_rules, [])
 
       # 26: That's not the right answer.
-      assert length(result) == 26
+      # 436: That's not the right answer; your answer is too high.
+      assert length(result) == 254
     end
   end
 
