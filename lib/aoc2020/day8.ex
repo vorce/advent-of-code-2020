@@ -3,6 +3,8 @@ defmodule Aoc2020.Day8 do
   8
   """
 
+  defstruct [:acc, :pointer]
+
   def parse!(input) do
     input
     |> Enum.with_index()
@@ -18,51 +20,63 @@ defmodule Aoc2020.Day8 do
     end
   end
 
-  def execute(ins, pointer, acc, _) when map_size(ins) == 0, do: {pointer, acc}
-  def execute(ins, pointer, acc, _) when pointer >= map_size(ins), do: {pointer, acc}
+  def execute(ins, %__MODULE__{} = state, _) when map_size(ins) == 0, do: state
 
-  def execute(instructions, pointer, acc, done) do
-    instruction = Map.get(instructions, pointer)
+  def execute(ins, %__MODULE__{pointer: p} = state, _) when p >= map_size(ins), do: state
+
+  def execute(instructions, %__MODULE__{} = state, done) do
+    instruction = Map.get(instructions, state.pointer)
 
     if MapSet.member?(done, instruction) do
-      {pointer, acc}
+      state
     else
-      {pointer, acc} = execute_instruction(instruction, pointer, acc)
-      execute(instructions, pointer, acc, MapSet.put(done, instruction))
+      new_state = execute_instruction(instruction, state)
+      execute(instructions, new_state, MapSet.put(done, instruction))
     end
   end
 
-  def execute_instruction(%{op: :nop}, pointer, acc), do: {pointer + 1, acc}
-  def execute_instruction(%{op: :acc, arg: i}, pointer, acc), do: {pointer + 1, acc + i}
-  def execute_instruction(%{op: :jmp, arg: offset}, pointer, acc), do: {pointer + offset, acc}
+  def execute_instruction(%{op: :nop}, %__MODULE__{} = state),
+    do: %__MODULE__{state | pointer: state.pointer + 1}
 
-  def fix_loops(instructions, pointer, acc) do
-    {pointer, acc} = fix_loop(instructions, pointer, acc, :jmp)
+  def execute_instruction(%{op: :acc, arg: i}, %__MODULE__{} = state),
+    do: %__MODULE__{state | pointer: state.pointer + 1, acc: state.acc + i}
 
-    if pointer >= map_size(instructions) do
-      {pointer, acc}
+  def execute_instruction(%{op: :jmp, arg: offset}, %__MODULE__{} = state),
+    do: %__MODULE__{state | pointer: state.pointer + offset}
+
+  def fix_loops(instructions, state) do
+    state = fix_loop(instructions, state, :jmp)
+
+    if state.pointer >= map_size(instructions) do
+      state
     else
-      fix_loop(instructions, pointer, acc, :nop)
+      fix_loop(instructions, state, :nop)
     end
   end
 
-  def fix_loop(instructions, pointer, acc, op) do
-    case Map.get(instructions, pointer) do
+  def fix_loop(instructions, state, op) do
+    case Map.get(instructions, state.pointer) do
       nil ->
-        {pointer, acc}
+        state
 
       %{op: ^op} = ins ->
         new_op = swap_instruction(ins)
-        {exec_pointer, acc} = execute(Map.put(instructions, pointer, new_op), 0, 0, MapSet.new())
 
-        if exec_pointer >= map_size(instructions) do
-          {exec_pointer, acc}
+        exec_state =
+          execute(
+            Map.put(instructions, state.pointer, new_op),
+            %__MODULE__{acc: 0, pointer: 0},
+            MapSet.new()
+          )
+
+        if exec_state.pointer >= map_size(instructions) do
+          exec_state
         else
-          fix_loop(instructions, pointer + 1, acc, :jmp)
+          fix_loop(instructions, %__MODULE__{state | pointer: state.pointer + 1}, op)
         end
 
       _ ->
-        fix_loop(instructions, pointer + 1, acc, :jmp)
+        fix_loop(instructions, %__MODULE__{state | pointer: state.pointer + 1}, op)
     end
   end
 

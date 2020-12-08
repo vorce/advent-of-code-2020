@@ -14,6 +14,9 @@ defmodule Aoc2020.Day8Test do
     "jmp -4",
     "acc +6"
   ]
+
+  @initial_state %Day8{acc: 0, pointer: 0}
+
   describe "part 1" do
     test "parse!/1" do
       assert Day8.parse!(@part1_example) == %{
@@ -30,18 +33,31 @@ defmodule Aoc2020.Day8Test do
     end
 
     test "execute_instruction/3" do
-      assert Day8.execute_instruction(%{op: :nop, arg: 0}, 10, 0) == {11, 0}
-      assert Day8.execute_instruction(%{op: :acc, arg: 11}, 8, 0) == {9, 11}
-      assert Day8.execute_instruction(%{op: :acc, arg: 3}, 0, 1) == {1, 4}
-      assert Day8.execute_instruction(%{op: :acc, arg: -2}, 0, 0) == {1, -2}
+      assert Day8.execute_instruction(%{op: :nop, arg: 0}, %Day8{pointer: 10, acc: 0}) == %Day8{
+               pointer: 11,
+               acc: 0
+             }
+
+      assert Day8.execute_instruction(%{op: :acc, arg: 11}, %Day8{pointer: 8, acc: 0}) == %Day8{
+               pointer: 9,
+               acc: 11
+             }
+
+      assert Day8.execute_instruction(%{op: :acc, arg: 3}, %Day8{pointer: 0, acc: 1}) == %Day8{
+               pointer: 1,
+               acc: 4
+             }
+
+      assert Day8.execute_instruction(%{op: :acc, arg: -2}, %Day8{pointer: 0, acc: 0}) == %Day8{
+               pointer: 1,
+               acc: -2
+             }
     end
 
     test "execute/4 on example" do
       instructions = Day8.parse!(@part1_example)
 
-      {_, acc} = Day8.execute(instructions, 0, 0, MapSet.new())
-
-      assert acc == 5
+      assert Day8.execute(instructions, @initial_state, MapSet.new()) == %Day8{acc: 5, pointer: 1}
     end
 
     test "execute/4 on input file" do
@@ -52,9 +68,10 @@ defmodule Aoc2020.Day8Test do
         |> Enum.reject(fn line -> line == "" end)
         |> Day8.parse!()
 
-      {_, acc} = Day8.execute(instructions, 0, 0, MapSet.new())
-
-      assert acc == 1654
+      assert Day8.execute(instructions, @initial_state, MapSet.new()) == %Day8{
+               acc: 1654,
+               pointer: 516
+             }
     end
   end
 
@@ -64,10 +81,10 @@ defmodule Aoc2020.Day8Test do
         @part1_example
         |> Day8.parse!()
 
-      {pointer, acc} = Day8.fix_loop(instructions, 0, 0, :jmp)
-
-      assert acc == 8
-      assert pointer == 9
+      assert Day8.fix_loop(instructions, @initial_state, :jmp) == %Day8{
+               acc: 8,
+               pointer: 9
+             }
     end
 
     test "fix_loops/3 on example" do
@@ -75,10 +92,7 @@ defmodule Aoc2020.Day8Test do
         @part1_example
         |> Day8.parse!()
 
-      {pointer, acc} = Day8.fix_loops(instructions, 0, 0)
-
-      assert acc == 8
-      assert pointer == 9
+      assert Day8.fix_loops(instructions, @initial_state) == %Day8{acc: 8, pointer: 9}
     end
 
     test "fix_loops/3 on input file" do
@@ -89,10 +103,10 @@ defmodule Aoc2020.Day8Test do
         |> Enum.reject(fn line -> line == "" end)
         |> Day8.parse!()
 
-      {pointer, acc} = Day8.fix_loops(instructions, 0, 0)
-
-      assert acc == 833
-      assert pointer == 626
+      assert Day8.fix_loops(instructions, @initial_state) == %Day8{
+               acc: 833,
+               pointer: 626
+             }
     end
   end
 end
