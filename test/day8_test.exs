@@ -36,10 +36,10 @@ defmodule Aoc2020.Day8Test do
       assert Day8.execute_instruction(%{op: :acc, arg: -2}, 0, 0) == {1, -2}
     end
 
-    test "execute/4" do
+    test "execute/4 on example" do
       instructions = Day8.parse!(@part1_example)
 
-      acc = Day8.execute(instructions, 0, 0, MapSet.new())
+      {_, acc} = Day8.execute(instructions, 0, 0, MapSet.new())
 
       assert acc == 5
     end
@@ -52,12 +52,33 @@ defmodule Aoc2020.Day8Test do
         |> Enum.reject(fn line -> line == "" end)
         |> Day8.parse!()
 
-      acc = Day8.execute(instructions, 0, 0, MapSet.new())
+      {_, acc} = Day8.execute(instructions, 0, 0, MapSet.new())
 
       assert acc == 1654
     end
   end
 
   describe "part 2" do
+    test "execute/4 on fixed example" do
+      instructions =
+        @part1_example
+        |> Day8.parse!()
+        |> Map.put(7, %{op: :nop, arg: -4, line: 7})
+
+      {_, acc} = Day8.execute(instructions, 0, 0, MapSet.new())
+
+      assert acc == 8
+    end
+
+    @tag timeout: :infinity
+    test "fix_loop/4 on example" do
+      instructions =
+        @part1_example
+        |> Day8.parse!()
+
+      {pointer, acc} = Day8.fix_loop(instructions, 0, 0, :jmp)
+
+      assert acc == 8
+    end
   end
 end
