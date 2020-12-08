@@ -24,10 +24,6 @@ defmodule Aoc2020.Day8 do
   def execute(instructions, pointer, acc, done) do
     instruction = Map.get(instructions, pointer)
 
-    # IO.inspect([instruction: instruction, acc: acc, pointer: pointer, done: done],
-    #   label: "instruction"
-    # )
-
     if MapSet.member?(done, instruction) do
       {pointer, acc}
     else
@@ -40,19 +36,23 @@ defmodule Aoc2020.Day8 do
   def execute_instruction(%{op: :acc, arg: i}, pointer, acc), do: {pointer + 1, acc + i}
   def execute_instruction(%{op: :jmp, arg: offset}, pointer, acc), do: {pointer + offset, acc}
 
-  def fix_loop(instructions, pointer, acc) do
-    [:jmp, :]
+  def fix_loops(instructions, pointer, acc) do
+    {pointer, acc} = fix_loop(instructions, pointer, acc, :jmp)
+
+    if pointer >= map_size(instructions) do
+      {pointer, acc}
+    else
+      fix_loop(instructions, pointer, acc, :nop)
+    end
   end
 
-  def fix_loop(instructions, pointer, acc, :jmp) do
-    IO.inspect(pointer, label: "Changing operation at")
-
+  def fix_loop(instructions, pointer, acc, op) do
     case Map.get(instructions, pointer) do
       nil ->
         {pointer, acc}
 
-      %{op: :jmp} ->
-        new_op = %{op: :nop, arg: -666, line: pointer}
+      %{op: ^op} = ins ->
+        new_op = swap_instruction(ins)
         {exec_pointer, acc} = execute(Map.put(instructions, pointer, new_op), 0, 0, MapSet.new())
 
         if exec_pointer >= map_size(instructions) do
@@ -66,5 +66,11 @@ defmodule Aoc2020.Day8 do
     end
   end
 
+  defp swap_instruction(%{op: :jmp} = op) do
+    %{op | op: :nop}
+  end
 
+  defp swap_instruction(%{op: :nop} = op) do
+    %{op | op: :jmp}
+  end
 end
