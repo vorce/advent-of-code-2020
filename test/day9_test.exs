@@ -42,7 +42,14 @@ defmodule Aoc2020.Day9Test do
 
   describe "part 2" do
     test "find_contiguous/3 on example" do
-      assert Day9.find_contiguous(@part1_input_example, 127, @min_range_len) == [15, 25, 47, 40]
+      first_range = Enum.take(@part1_input_example, @min_range_len)
+
+      assert Day9.find_contiguous(@part1_input_example, 127, first_range) |> Enum.sort() == [
+               15,
+               25,
+               40,
+               47
+             ]
     end
 
     test "encryption_weakness/1" do
@@ -51,8 +58,9 @@ defmodule Aoc2020.Day9Test do
 
     test "find_contiguous/3 on input file" do
       input = Day9.parse!("test/data/day9_input.txt")
+      first_range = Enum.take(input, @min_range_len)
 
-      result = Day9.find_contiguous(input, 542_529_149, @min_range_len)
+      result = Day9.find_contiguous(input, 542_529_149, first_range)
 
       assert Day9.encryption_weakness(result) == 75_678_618
     end

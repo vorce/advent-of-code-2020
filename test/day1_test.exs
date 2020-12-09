@@ -3,7 +3,7 @@ defmodule Aoc2020.Day1Test do
 
   alias Aoc2020.Day1
 
-  describe "part1" do
+  describe "part 1" do
     test "sum_components returns the two components that add up to 2020" do
       numbers = [1721, 979, 366, 299, 675, 1456]
       assert Day1.sum_components(numbers, 2020) == [1721, 299]
@@ -20,7 +20,7 @@ defmodule Aoc2020.Day1Test do
     end
   end
 
-  describe "part2" do
+  describe "part 2" do
     test "triple sum to target" do
       numbers = [1721, 979, 366, 299, 675, 1456]
 

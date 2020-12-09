@@ -47,13 +47,12 @@ defmodule Aoc2020.Day9 do
     Enum.find(pairs, fn {x, y} -> x + y == number end)
   end
 
-  @spec find_contiguous(input :: [integer], target :: integer, range_length :: integer) :: [
-          integer
-        ]
-  def find_contiguous([], _target, _range_length), do: []
+  @min_range_len 2
 
-  def find_contiguous(input, target, range_length) do
-    range = Enum.take(input, range_length)
+  @spec find_contiguous(input :: [integer], target :: integer, range :: [integer]) :: [integer]
+  def find_contiguous([], _target, _range), do: []
+
+  def find_contiguous(input, target, range) do
     sum = Enum.sum(range)
 
     cond do
@@ -61,11 +60,19 @@ defmodule Aoc2020.Day9 do
         range
 
       sum > target ->
-        min_range_len = 2
-        find_contiguous(Enum.drop(input, 1), target, min_range_len)
+        new_input = Enum.drop(input, 1)
+        new_range = Enum.take(new_input, @min_range_len)
+        find_contiguous(new_input, target, new_range)
 
-      true ->
-        find_contiguous(input, target, range_length + 1)
+      sum < target ->
+        # Hm, why is this faster than `new_range = Enum.take(input, length(range) + 1)`?
+        new_range =
+          input
+          |> Enum.drop(length(range))
+          |> Enum.take(1)
+          |> Enum.concat(range)
+
+        find_contiguous(input, target, new_range)
     end
   end
 
