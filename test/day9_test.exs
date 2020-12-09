@@ -32,20 +32,17 @@ defmodule Aoc2020.Day9Test do
     end
 
     test "first_invalid/2 on input file" do
-      input =
-        "test/data/day9_input.txt"
-        |> File.read!()
-        |> String.split("\n")
-        |> Enum.reject(fn l -> l == "" end)
-        |> Enum.map(&String.to_integer/1)
+      input = Day9.parse!("test/data/day9_input.txt")
 
       assert Day9.first_invalid(input, 25) == 542_529_149
     end
   end
 
+  @min_range_len 2
+
   describe "part 2" do
     test "find_contiguous/3 on example" do
-      assert Day9.find_contiguous(@part1_input_example, 127, 2) == [15, 25, 47, 40]
+      assert Day9.find_contiguous(@part1_input_example, 127, @min_range_len) == [15, 25, 47, 40]
     end
 
     test "encryption_weakness/1" do
@@ -53,14 +50,9 @@ defmodule Aoc2020.Day9Test do
     end
 
     test "find_contiguous/3 on input file" do
-      input =
-        "test/data/day9_input.txt"
-        |> File.read!()
-        |> String.split("\n")
-        |> Enum.reject(fn l -> l == "" end)
-        |> Enum.map(&String.to_integer/1)
+      input = Day9.parse!("test/data/day9_input.txt")
 
-      result = Day9.find_contiguous(input, 542_529_149, 2)
+      result = Day9.find_contiguous(input, 542_529_149, @min_range_len)
 
       assert Day9.encryption_weakness(result) == 75_678_618
     end

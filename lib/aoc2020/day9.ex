@@ -3,7 +3,17 @@ defmodule Aoc2020.Day9 do
   9
   """
 
-  def first_invalid([], _, _), do: nil
+  @spec parse!(path :: String.t()) :: [integer]
+  def parse!(path) do
+    path
+    |> File.read!()
+    |> String.split("\n")
+    |> Enum.reject(fn l -> l == "" end)
+    |> Enum.map(&String.to_integer/1)
+  end
+
+  @spec first_invalid(input :: [integer], preamble_length :: integer) :: integer | nil
+  def first_invalid([], _), do: nil
 
   def first_invalid(input, preamble_length) do
     preamble = Enum.take(input, preamble_length)
@@ -19,6 +29,7 @@ defmodule Aoc2020.Day9 do
     end
   end
 
+  @spec valid_xmas?(number :: nil | nil, preamble :: [integer]) :: boolean()
   def valid_xmas?(nil, _), do: true
 
   def valid_xmas?(number, preamble) do
@@ -27,8 +38,7 @@ defmodule Aoc2020.Day9 do
     if number >= max * 2 do
       false
     else
-      found = check_all_pairs(number, preamble)
-      found != nil
+      check_all_pairs(number, preamble) != nil
     end
   end
 
@@ -37,7 +47,10 @@ defmodule Aoc2020.Day9 do
     Enum.find(pairs, fn {x, y} -> x + y == number end)
   end
 
-  def find_contiguous([], _target, _range_length), do: nil
+  @spec find_contiguous(input :: [integer], target :: integer, range_length :: integer) :: [
+          integer
+        ]
+  def find_contiguous([], _target, _range_length), do: []
 
   def find_contiguous(input, target, range_length) do
     range = Enum.take(input, range_length)
@@ -48,7 +61,8 @@ defmodule Aoc2020.Day9 do
         range
 
       sum > target ->
-        find_contiguous(Enum.drop(input, 1), target, 2)
+        min_range_len = 2
+        find_contiguous(Enum.drop(input, 1), target, min_range_len)
 
       true ->
         find_contiguous(input, target, range_length + 1)
