@@ -37,20 +37,21 @@ defmodule Aoc2020.Day9 do
     Enum.find(pairs, fn {x, y} -> x + y == number end)
   end
 
-  def find_contiguous([], _target, _pos), do: nil
+  def find_contiguous([], _target, _range_length), do: nil
 
-  def find_contiguous(input, target, pos) do
-    range = Enum.take(input, pos)
+  def find_contiguous(input, target, range_length) do
+    range = Enum.take(input, range_length)
+    sum = Enum.sum(range)
 
     cond do
-      Enum.sum(range) == target and length(range) >= 2 ->
+      sum == target ->
         range
 
-      Enum.sum(range) > target ->
-        find_contiguous(Enum.drop(input, 1), target, 1)
+      sum > target ->
+        find_contiguous(Enum.drop(input, 1), target, 2)
 
       true ->
-        find_contiguous(input, target, pos + 1)
+        find_contiguous(input, target, range_length + 1)
     end
   end
 
