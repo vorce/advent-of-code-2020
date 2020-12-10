@@ -94,17 +94,17 @@ defmodule Aoc2020.Day10Test do
   end
 
   describe "part 2" do
-    test "giveup example 1" do
+    test "paths/1 on example 1" do
       chain = Day10.adapter_chain(@part1_example_input)
       assert chain |> Day10.paths() |> Map.get(0) == 8
     end
 
-    test "giveup example 2" do
+    test "paths/1 on example 2" do
       chain = Day10.adapter_chain(@example_2)
       assert chain |> Day10.paths() |> Map.get(0) == 19208
     end
 
-    test "giveup on input file" do
+    test "paths/1 on input file" do
       chain = Day10.parse!("test/data/day10_input.txt")
       assert chain |> Day10.paths() |> Map.get(0) == 2_644_613_988_352
     end
