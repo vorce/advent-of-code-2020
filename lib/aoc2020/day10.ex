@@ -19,6 +19,9 @@ defmodule Aoc2020.Day10 do
     Enum.sort([first, last | input])
   end
 
+  def of(0), do: 1
+  def of(n) when n > 0, do: n * of(n - 1)
+
   def differences(chain) do
     chain
     |> Enum.chunk_every(2, 1, :discard)
@@ -28,5 +31,9 @@ defmodule Aoc2020.Day10 do
         ev + 1
       end)
     end)
+  end
+
+  def candidates(input, adapter) do
+    Enum.filter(input, fn a -> a > adapter and a <= adapter + 3 end)
   end
 end

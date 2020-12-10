@@ -95,5 +95,47 @@ defmodule Aoc2020.Day10Test do
   end
 
   describe "part 2" do
+    test "differences/1 on example1 variants" do
+      assert Day10.differences([0, 1, 4, 5, 7, 10, 11, 12, 15, 16, 19, 22]) == %{
+               1 => 5,
+               2 => 1,
+               3 => 5
+             }
+
+      assert Day10.differences([0, 1, 4, 5, 7, 10, 12, 15, 16, 19, 22]) == %{
+               1 => 3,
+               2 => 2,
+               3 => 5
+             }
+
+      assert Day10.differences([0, 1, 4, 6, 7, 10, 11, 12, 15, 16, 19, 22]) == %{
+               1 => 5,
+               2 => 1,
+               3 => 5
+             }
+
+      assert Day10.differences([0, 1, 4, 6, 7, 10, 12, 15, 16, 19, 22]) == %{
+               1 => 3,
+               2 => 2,
+               3 => 5
+             }
+
+      assert Day10.differences([0, 1, 4, 7, 10, 11, 12, 15, 16, 19, 22]) == %{1 => 4, 3 => 6}
+      assert Day10.differences([0, 1, 4, 7, 10, 12, 15, 16, 19, 22]) == %{1 => 2, 2 => 1, 3 => 6}
+      # All maps have total of: 22 (1*n + 2*m + 3*o)
+    end
+
+    # test "chain_sum" do
+    # can you swap out any "1 difference" adapter to a 2? remove it?
+    # only if its diff to the left and right element stays within 3.
+    # O(n)? Go through each entry in the longest chain.
+    # end
+
+    test "canidates/2" do
+      chain = Day10.adapter_chain(@part1_example_input)
+      assert Day10.candidates(chain, 0) == [1]
+      assert Day10.candidates(chain, 1) == [4]
+      assert Day10.candidates(chain, 4) == [5, 6, 7]
+    end
   end
 end
