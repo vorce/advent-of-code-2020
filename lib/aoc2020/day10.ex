@@ -1,8 +1,6 @@
 defmodule Aoc2020.Day10 do
   @moduledoc false
 
-  defstruct [:chosen, :max]
-
   def parse!(path) do
     path
     |> File.stream!()
@@ -28,5 +26,22 @@ defmodule Aoc2020.Day10 do
         ev + 1
       end)
     end)
+  end
+
+  def paths(chain) do
+    target = Enum.reverse(chain) |> List.first()
+
+    chain
+    |> Enum.reverse()
+    |> Enum.drop(1)
+    |> Enum.reduce(%{target => 1}, fn adapter, acc ->
+      paths_to_adapter = adapter_paths(acc, adapter)
+      Map.put(acc, adapter, paths_to_adapter)
+    end)
+  end
+
+  defp adapter_paths(paths, adapter) do
+    Map.get(paths, adapter + 1, 0) + Map.get(paths, adapter + 2, 0) +
+      Map.get(paths, adapter + 3, 0)
   end
 end

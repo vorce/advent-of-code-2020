@@ -45,42 +45,41 @@ defmodule Aoc2020.Day10Test do
              }
     end
 
+    @example_2 [
+      28,
+      33,
+      18,
+      42,
+      31,
+      14,
+      46,
+      20,
+      48,
+      47,
+      24,
+      23,
+      49,
+      45,
+      19,
+      38,
+      39,
+      11,
+      1,
+      32,
+      25,
+      35,
+      8,
+      17,
+      7,
+      9,
+      4,
+      2,
+      34,
+      10,
+      3
+    ]
     test "differences/1 on example 2" do
-      example2 = [
-        28,
-        33,
-        18,
-        42,
-        31,
-        14,
-        46,
-        20,
-        48,
-        47,
-        24,
-        23,
-        49,
-        45,
-        19,
-        38,
-        39,
-        11,
-        1,
-        32,
-        25,
-        35,
-        8,
-        17,
-        7,
-        9,
-        4,
-        2,
-        34,
-        10,
-        3
-      ]
-
-      chain = Day10.adapter_chain(example2)
+      chain = Day10.adapter_chain(@example_2)
 
       assert Day10.differences(chain) == %{
                1 => 22,
@@ -95,5 +94,19 @@ defmodule Aoc2020.Day10Test do
   end
 
   describe "part 2" do
+    test "paths/1 on example 1" do
+      chain = Day10.adapter_chain(@part1_example_input)
+      assert chain |> Day10.paths() |> Map.get(0) == 8
+    end
+
+    test "paths/1 on example 2" do
+      chain = Day10.adapter_chain(@example_2)
+      assert chain |> Day10.paths() |> Map.get(0) == 19208
+    end
+
+    test "paths/1 on input file" do
+      chain = Day10.parse!("test/data/day10_input.txt")
+      assert chain |> Day10.paths() |> Map.get(0) == 2_644_613_988_352
+    end
   end
 end
