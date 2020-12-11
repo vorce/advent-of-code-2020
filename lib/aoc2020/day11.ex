@@ -25,26 +25,17 @@ defmodule Aoc2020.Day11 do
   def apply_rules(map, pos, empty_seat_fn, occupied_seat_fn) do
     case Map.get(map, pos) do
       "L" ->
-        # empty seats that see no occupied seats become occupied,
-        if empty_seat_fn.(map, pos) do
-          "#"
-        else
-          "L"
-        end
+        if empty_seat_fn.(map, pos), do: "#", else: "L"
 
       "#" ->
-        if occupied_seat_fn.(map, pos) do
-          "L"
-        else
-          "#"
-        end
+        if occupied_seat_fn.(map, pos), do: "L", else: "#"
 
       "." ->
         "."
     end
   end
 
-  def no_occupied_adjacent2?(map, pos) do
+  def no_occupied_adjacent_seen?(map, pos) do
     map
     |> adjacent_seen(pos)
     |> Enum.all?(fn seat -> seat == "L" end)

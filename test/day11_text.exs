@@ -174,7 +174,7 @@ defmodule Aoc2020.Day11Test do
         "#.#####.##"
       ]
 
-      empty_seat_fn = &Day11.no_occupied_adjacent2?/2
+      empty_seat_fn = &Day11.no_occupied_adjacent_seen?/2
       occupied_seat_fn = &Day11.crowded2?/2
 
       result = Day11.iterate(map, empty_seat_fn, occupied_seat_fn)
@@ -198,7 +198,7 @@ defmodule Aoc2020.Day11Test do
         "#.LLLLL.L#"
       ]
 
-      empty_seat_fn = &Day11.no_occupied_adjacent2?/2
+      empty_seat_fn = &Day11.no_occupied_adjacent_seen?/2
       occupied_seat_fn = &Day11.crowded2?/2
 
       result =
@@ -225,7 +225,7 @@ defmodule Aoc2020.Day11Test do
         "#.L#LL#.L#"
       ]
 
-      empty_seat_fn = &Day11.no_occupied_adjacent2?/2
+      empty_seat_fn = &Day11.no_occupied_adjacent_seen?/2
       occupied_seat_fn = &Day11.crowded2?/2
 
       result = Day11.iterate_until_done(map, %{}, empty_seat_fn, occupied_seat_fn)
@@ -240,7 +240,7 @@ defmodule Aoc2020.Day11Test do
         |> String.split("\n")
         |> Day11.parse!()
 
-      empty_seat_fn = &Day11.no_occupied_adjacent2?/2
+      empty_seat_fn = &Day11.no_occupied_adjacent_seen?/2
       occupied_seat_fn = &Day11.crowded2?/2
 
       result = Day11.iterate_until_done(map, %{}, empty_seat_fn, occupied_seat_fn)
