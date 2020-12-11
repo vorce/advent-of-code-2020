@@ -15,9 +15,16 @@ defmodule Aoc2020.Day11 do
     |> Enum.map(fn {pos, col_nr} -> {{col_nr, line_nr}, pos} end)
   end
 
-  def iterate(map) do
+  def iterate(map, crowded_threshold \\ 4) do
     Enum.reduce(map, %{}, fn {pos, _val}, acc ->
-      new_val = apply_rules(map, pos)
+      new_val = apply_rules(map, pos, crowded_threshold)
+      Map.put(acc, pos, new_val)
+    end)
+  end
+
+  def iterate2(map) do
+    Enum.reduce(map, %{}, fn {pos, _val}, acc ->
+      new_val = apply_rules2(map, pos)
       Map.put(acc, pos, new_val)
     end)
   end
@@ -28,11 +35,27 @@ defmodule Aoc2020.Day11 do
         if no_occupied_adjacent?(map, pos), do: "#", else: "L"
 
       "#" ->
-        if crowded?(map, pos), do: "L", else: "#"
+        if crowded?(map, pos, 5), do: "L", else: "#"
 
       "." ->
         "."
     end
+  end
+
+  def apply_rules(map, pos, crowded_threshold) do
+    case Map.get(map, pos) do
+      "L" ->
+        if no_occupied_adjacent?(map, pos), do: "#", else: "L"
+
+      "#" ->
+        if crowded?(map, pos, crowded_threshold), do: "L", else: "#"
+
+      "." ->
+        "."
+    end
+  end
+
+  def no_occupied_adjacent2() do
   end
 
   def adjacent_pos({x, y}) do
@@ -58,13 +81,13 @@ defmodule Aoc2020.Day11 do
     Map.get(map, {x, y}) == "#"
   end
 
-  def crowded?(map, p) do
+  def crowded?(map, p, crowded_threshold) do
     occupied_adjacent =
       p
       |> adjacent_pos()
       |> Enum.map(fn pos -> if occupied?(map, pos), do: 1, else: 0 end)
 
-    Enum.sum(occupied_adjacent) >= 4
+    Enum.sum(occupied_adjacent) >= crowded_threshold
   end
 
   def output(map, height, width) do
@@ -101,26 +124,21 @@ defmodule Aoc2020.Day11 do
     ]
   end
 
-  def find_adjacent_seen(map, {x, y}, acc) do
-    adjacent_dirs()
-    |> Enum.map(fn {dir_x, dir_y} ->
-      {new_x, new_y} = {x + dir_x, y + dir_y}
-      IO.inspect([pos: {x, y}, new: {new_x, new_y}, acc: acc], label: "ok")
+  def find_adjacent_seen(map, {x, y}, {dir_x, dir_y}, acc) do
+    {new_x, new_y} = {x + dir_x, y + dir_y}
 
-      case Map.get(map, {new_x, new_y}) do
-        nil ->
-          acc
+    case Map.get(map, {new_x, new_y}) do
+      nil ->
+        acc
 
-        "#" ->
-          IO.inspect(label: "found an occupied seat at #{inspect({new_x, new_y})}")
-          ["#" | acc]
+      "#" ->
+        ["#" | acc]
 
-        "L" ->
-          ["L" | acc]
+      "L" ->
+        ["L" | acc]
 
-        "." ->
-          find_adjacent_seen(map, {new_x + dir_x, new_x + dir_y}, acc)
-      end
-    end)
+      "." ->
+        find_adjacent_seen(map, {new_x, new_y}, {dir_x, dir_y}, acc)
+    end
   end
 end
