@@ -149,18 +149,99 @@ defmodule Aoc2020.Day11Test do
       assert Day11.find_adjacent_seen(map, start_pos, {1, 1}, []) == []
     end
 
+    test "find_adjacent_seen/2 on example 1 iterated once" do
+      example1_iterated = [
+        "#.##.##.##",
+        "#######.##",
+        "#.#.#..#..",
+        "####.##.##",
+        "#.##.##.##",
+        "#.#####.##",
+        "..#.#.....",
+        "##########",
+        "#.######.#",
+        "#.#####.##"
+      ]
+
+      map = Day11.parse!(example1_iterated)
+      start_pos = {2, 0}
+      # assert Day11.adjacent_seen(map, start_pos) == ["#", "#", "#", "#", "#"]
+
+      result = Day11.iterate2(map)
+      assert Day11.adjacent_seen(result, start_pos) == ["#", "#", "#", "#", "#"]
+    end
+
     test "iterate2/2 once on example" do
       map = Day11.parse!(@start_example)
+
+      expected_result = [
+        "#.##.##.##",
+        "#######.##",
+        "#.#.#..#..",
+        "####.##.##",
+        "#.##.##.##",
+        "#.#####.##",
+        "..#.#.....",
+        "##########",
+        "#.######.#",
+        "#.#####.##"
+      ]
+
       result = Day11.iterate2(map)
+      assert Day11.output(result, 10, 10) == expected_result
+    end
 
-      # IO.inspect(Day11.output(result, 10, 10))
+    test "iterate2/2 twice on example" do
+      map = Day11.parse!(@start_example)
 
-      Enum.each(result, fn {pos, v} ->
-        case Map.get(map, pos) do
-          "L" -> assert v == "#"
-          "." -> assert v == "."
-        end
-      end)
+      expected_result = [
+        "#.LL.LL.L#",
+        "#LLLLLL.LL",
+        "L.L.L..L..",
+        "LLLL.LL.LL",
+        "L.LL.LL.LL",
+        "L.LLLLL.LL",
+        "..L.L.....",
+        "LLLLLLLLL#",
+        "#.LLLLLL.L",
+        "#.LLLLL.L#"
+      ]
+
+      result = map |> Day11.iterate2() |> Day11.iterate2()
+      assert Day11.output(result, 10, 10) == expected_result
+    end
+
+    test "iterate_until_done2 on example" do
+      map = Day11.parse!(@start_example)
+
+      expected_result = [
+        "#.L#.L#.L#",
+        "#LLLLLL.LL",
+        "L.L.L..#..",
+        "##L#.#L.L#",
+        "L.L#.LL.L#",
+        "#.LLLL#.LL",
+        "..#.L.....",
+        "LLL###LLL#",
+        "#.LLLLL#.L",
+        "#.L#LL#.L#"
+      ]
+
+      result = Day11.iterate_until_done2(map, %{})
+
+      assert Day11.output(result, 10, 10) == expected_result
+    end
+
+    test "iterate_until_done2 on input file" do
+      map =
+        "test/data/day11_input.txt"
+        |> File.read!()
+        |> String.split("\n")
+        |> Day11.parse!()
+
+      result = Day11.iterate_until_done2(map, %{})
+
+      assert Day11.count_occupied_seats(result) == 2111
     end
   end
 end

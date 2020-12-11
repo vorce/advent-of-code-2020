@@ -23,19 +23,33 @@ defmodule Aoc2020.Day11 do
   end
 
   def iterate2(map) do
+    # IO.puts("iterate2")
+    # IO.inspect(map, label: "map")
+
     Enum.reduce(map, %{}, fn {pos, _val}, acc ->
       new_val = apply_rules2(map, pos)
       Map.put(acc, pos, new_val)
     end)
   end
 
-  def apply_rules(map, pos) do
+  def apply_rules2(map, pos) do
     case Map.get(map, pos) do
       "L" ->
-        if no_occupied_adjacent?(map, pos), do: "#", else: "L"
+        # empty seats that see no occupied seats become occupied,
+        if no_occupied_adjacent2?(map, pos) do
+          # IO.inspect(map, label: "Changing L to #. No occupied seats seen from #{inspect(pos)}")
+          "#"
+        else
+          "L"
+        end
 
       "#" ->
-        if crowded?(map, pos, 5), do: "L", else: "#"
+        if crowded2?(map, pos, 5) do
+          # IO.inspect(map, label: "Changing # to L. It is crowded at #{inspect(pos)}")
+          "L"
+        else
+          "#"
+        end
 
       "." ->
         "."
@@ -55,7 +69,25 @@ defmodule Aoc2020.Day11 do
     end
   end
 
-  def no_occupied_adjacent2() do
+  def no_occupied_adjacent2?(map, pos) do
+    map
+    |> adjacent_seen(pos)
+    # |> IO.inspect(label: "adjacent_seend")
+    |> Enum.all?(fn seat -> seat == "L" end)
+  end
+
+  def adjacent_seen(map, pos) do
+    Enum.flat_map(adjacent_dirs(), fn {dir_x, dir_y} ->
+      find_adjacent_seen(map, pos, {dir_x, dir_y}, [])
+    end)
+  end
+
+  defp debug(seen, map, pos) do
+    # if pos == {2, 0} do
+    # IO.inspect([seen: seen, map: map], label: "adjacent seen from #{inspect(pos)}")
+    # end
+
+    seen
   end
 
   def adjacent_pos({x, y}) do
@@ -90,6 +122,19 @@ defmodule Aoc2020.Day11 do
     Enum.sum(occupied_adjacent) >= crowded_threshold
   end
 
+  def crowded2?(map, p, crowded_threshold) do
+    seen =
+      adjacent_seen(map, p)
+      |> Enum.map(fn seat ->
+        case seat do
+          "#" -> 1
+          _ -> 0
+        end
+      end)
+
+    Enum.sum(seen) >= crowded_threshold
+  end
+
   def output(map, height, width) do
     Enum.map(0..(height - 1), fn y -> output_row(map, y, width) end)
   end
@@ -103,6 +148,12 @@ defmodule Aoc2020.Day11 do
 
   def iterate_until_done(map, _previous) do
     iterate_until_done(iterate(map), map)
+  end
+
+  def iterate_until_done2(map, previous) when map == previous, do: map
+
+  def iterate_until_done2(map, _previous) do
+    iterate_until_done2(iterate2(map), map)
   end
 
   def count_occupied_seats(map) do
