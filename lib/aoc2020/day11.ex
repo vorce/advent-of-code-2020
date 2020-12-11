@@ -41,8 +41,19 @@ defmodule Aoc2020.Day11 do
     |> Enum.all?(fn seat -> seat == "L" end)
   end
 
+  @directions [
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1},
+    {-1, -1},
+    {1, -1},
+    {1, 1},
+    {-1, 1}
+  ]
+
   def adjacent_seen(map, pos) do
-    Enum.flat_map(adjacent_dirs(), fn {dir_x, dir_y} ->
+    Enum.flat_map(@directions, fn {dir_x, dir_y} ->
       find_adjacent_seen(map, pos, {dir_x, dir_y}, [])
     end)
   end
@@ -117,19 +128,6 @@ defmodule Aoc2020.Day11 do
     map
     |> Enum.map(fn {_pos, seat} -> if seat == "#", do: 1, else: 0 end)
     |> Enum.sum()
-  end
-
-  def adjacent_dirs() do
-    [
-      {-1, 0},
-      {1, 0},
-      {0, -1},
-      {0, 1},
-      {-1, -1},
-      {1, -1},
-      {1, 1},
-      {-1, 1}
-    ]
   end
 
   def find_adjacent_seen(map, {x, y}, {dir_x, dir_y}, acc) do
