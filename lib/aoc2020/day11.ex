@@ -15,54 +15,29 @@ defmodule Aoc2020.Day11 do
     |> Enum.map(fn {pos, col_nr} -> {{col_nr, line_nr}, pos} end)
   end
 
-  def iterate(map, crowded_threshold \\ 4) do
+  def iterate(map, empty_seat_fn, occupied_seat_fn) do
     Enum.reduce(map, %{}, fn {pos, _val}, acc ->
-      new_val = apply_rules(map, pos, crowded_threshold)
+      new_val = apply_rules(map, pos, empty_seat_fn, occupied_seat_fn)
       Map.put(acc, pos, new_val)
     end)
   end
 
-  def iterate2(map) do
-    # IO.puts("iterate2")
-    # IO.inspect(map, label: "map")
-
-    Enum.reduce(map, %{}, fn {pos, _val}, acc ->
-      new_val = apply_rules2(map, pos)
-      Map.put(acc, pos, new_val)
-    end)
-  end
-
-  def apply_rules2(map, pos) do
+  def apply_rules(map, pos, empty_seat_fn, occupied_seat_fn) do
     case Map.get(map, pos) do
       "L" ->
         # empty seats that see no occupied seats become occupied,
-        if no_occupied_adjacent2?(map, pos) do
-          # IO.inspect(map, label: "Changing L to #. No occupied seats seen from #{inspect(pos)}")
+        if empty_seat_fn.(map, pos) do
           "#"
         else
           "L"
         end
 
       "#" ->
-        if crowded2?(map, pos, 5) do
-          # IO.inspect(map, label: "Changing # to L. It is crowded at #{inspect(pos)}")
+        if occupied_seat_fn.(map, pos) do
           "L"
         else
           "#"
         end
-
-      "." ->
-        "."
-    end
-  end
-
-  def apply_rules(map, pos, crowded_threshold) do
-    case Map.get(map, pos) do
-      "L" ->
-        if no_occupied_adjacent?(map, pos), do: "#", else: "L"
-
-      "#" ->
-        if crowded?(map, pos, crowded_threshold), do: "L", else: "#"
 
       "." ->
         "."
@@ -72,7 +47,6 @@ defmodule Aoc2020.Day11 do
   def no_occupied_adjacent2?(map, pos) do
     map
     |> adjacent_seen(pos)
-    # |> IO.inspect(label: "adjacent_seend")
     |> Enum.all?(fn seat -> seat == "L" end)
   end
 
@@ -80,14 +54,6 @@ defmodule Aoc2020.Day11 do
     Enum.flat_map(adjacent_dirs(), fn {dir_x, dir_y} ->
       find_adjacent_seen(map, pos, {dir_x, dir_y}, [])
     end)
-  end
-
-  defp debug(seen, map, pos) do
-    # if pos == {2, 0} do
-    # IO.inspect([seen: seen, map: map], label: "adjacent seen from #{inspect(pos)}")
-    # end
-
-    seen
   end
 
   def adjacent_pos({x, y}) do
@@ -113,16 +79,16 @@ defmodule Aoc2020.Day11 do
     Map.get(map, {x, y}) == "#"
   end
 
-  def crowded?(map, p, crowded_threshold) do
+  def crowded?(map, p) do
     occupied_adjacent =
       p
       |> adjacent_pos()
       |> Enum.map(fn pos -> if occupied?(map, pos), do: 1, else: 0 end)
 
-    Enum.sum(occupied_adjacent) >= crowded_threshold
+    Enum.sum(occupied_adjacent) >= 4
   end
 
-  def crowded2?(map, p, crowded_threshold) do
+  def crowded2?(map, p) do
     seen =
       adjacent_seen(map, p)
       |> Enum.map(fn seat ->
@@ -132,7 +98,7 @@ defmodule Aoc2020.Day11 do
         end
       end)
 
-    Enum.sum(seen) >= crowded_threshold
+    Enum.sum(seen) >= 5
   end
 
   def output(map, height, width) do
@@ -144,16 +110,16 @@ defmodule Aoc2020.Day11 do
     |> Enum.join()
   end
 
-  def iterate_until_done(map, previous) when map == previous, do: map
+  def iterate_until_done(map, previous, _empty_seat_fn, _occupied_seat_fn) when map == previous,
+    do: map
 
-  def iterate_until_done(map, _previous) do
-    iterate_until_done(iterate(map), map)
-  end
-
-  def iterate_until_done2(map, previous) when map == previous, do: map
-
-  def iterate_until_done2(map, _previous) do
-    iterate_until_done2(iterate2(map), map)
+  def iterate_until_done(map, _previous, empty_seat_fn, occupied_seat_fn) do
+    iterate_until_done(
+      iterate(map, empty_seat_fn, occupied_seat_fn),
+      map,
+      empty_seat_fn,
+      occupied_seat_fn
+    )
   end
 
   def count_occupied_seats(map) do

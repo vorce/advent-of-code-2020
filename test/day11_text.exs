@@ -26,9 +26,10 @@ defmodule Aoc2020.Day11Test do
 
     test "iterate/2 once on example" do
       map = Day11.parse!(@start_example)
-      result = Day11.iterate(map)
+      empty_seat_fn = &Day11.no_occupied_adjacent?/2
+      occupied_seat_fn = &Day11.crowded?/2
 
-      # IO.inspect(Day11.output(result, 10, 10))
+      result = Day11.iterate(map, empty_seat_fn, occupied_seat_fn)
 
       Enum.each(result, fn {pos, v} ->
         case Map.get(map, pos) do
@@ -40,11 +41,13 @@ defmodule Aoc2020.Day11Test do
 
     test "iterate/2 twice on example" do
       map = Day11.parse!(@start_example)
+      empty_seat_fn = &Day11.no_occupied_adjacent?/2
+      occupied_seat_fn = &Day11.crowded?/2
 
       result =
         map
-        |> Day11.iterate()
-        |> Day11.iterate()
+        |> Day11.iterate(empty_seat_fn, occupied_seat_fn)
+        |> Day11.iterate(empty_seat_fn, occupied_seat_fn)
 
       assert Map.get(result, {2, 0}) == "L"
       assert Map.get(result, {6, 5}) == "#"
@@ -57,7 +60,10 @@ defmodule Aoc2020.Day11Test do
         |> String.split("\n")
         |> Day11.parse!()
 
-      result = Day11.iterate_until_done(map, %{})
+      empty_seat_fn = &Day11.no_occupied_adjacent?/2
+      occupied_seat_fn = &Day11.crowded?/2
+
+      result = Day11.iterate_until_done(map, %{}, empty_seat_fn, occupied_seat_fn)
 
       assert Day11.count_occupied_seats(result) == 2346
     end
@@ -78,7 +84,10 @@ defmodule Aoc2020.Day11Test do
         "#.#L#L#.##"
       ]
 
-      result = Day11.iterate_until_done(map, %{})
+      empty_seat_fn = &Day11.no_occupied_adjacent?/2
+      occupied_seat_fn = &Day11.crowded?/2
+
+      result = Day11.iterate_until_done(map, %{}, empty_seat_fn, occupied_seat_fn)
       assert Day11.output(result, 10, 10) == expected_result
     end
   end
@@ -149,29 +158,7 @@ defmodule Aoc2020.Day11Test do
       assert Day11.find_adjacent_seen(map, start_pos, {1, 1}, []) == []
     end
 
-    test "find_adjacent_seen/2 on example 1 iterated once" do
-      example1_iterated = [
-        "#.##.##.##",
-        "#######.##",
-        "#.#.#..#..",
-        "####.##.##",
-        "#.##.##.##",
-        "#.#####.##",
-        "..#.#.....",
-        "##########",
-        "#.######.#",
-        "#.#####.##"
-      ]
-
-      map = Day11.parse!(example1_iterated)
-      start_pos = {2, 0}
-      # assert Day11.adjacent_seen(map, start_pos) == ["#", "#", "#", "#", "#"]
-
-      result = Day11.iterate2(map)
-      assert Day11.adjacent_seen(result, start_pos) == ["#", "#", "#", "#", "#"]
-    end
-
-    test "iterate2/2 once on example" do
+    test "iterate/2 once on example" do
       map = Day11.parse!(@start_example)
 
       expected_result = [
@@ -187,11 +174,15 @@ defmodule Aoc2020.Day11Test do
         "#.#####.##"
       ]
 
-      result = Day11.iterate2(map)
+      empty_seat_fn = &Day11.no_occupied_adjacent2?/2
+      occupied_seat_fn = &Day11.crowded2?/2
+
+      result = Day11.iterate(map, empty_seat_fn, occupied_seat_fn)
+
       assert Day11.output(result, 10, 10) == expected_result
     end
 
-    test "iterate2/2 twice on example" do
+    test "iterate/2 twice on example" do
       map = Day11.parse!(@start_example)
 
       expected_result = [
@@ -207,11 +198,18 @@ defmodule Aoc2020.Day11Test do
         "#.LLLLL.L#"
       ]
 
-      result = map |> Day11.iterate2() |> Day11.iterate2()
+      empty_seat_fn = &Day11.no_occupied_adjacent2?/2
+      occupied_seat_fn = &Day11.crowded2?/2
+
+      result =
+        map
+        |> Day11.iterate(empty_seat_fn, occupied_seat_fn)
+        |> Day11.iterate(empty_seat_fn, occupied_seat_fn)
+
       assert Day11.output(result, 10, 10) == expected_result
     end
 
-    test "iterate_until_done2 on example" do
+    test "iterate_until_done on example" do
       map = Day11.parse!(@start_example)
 
       expected_result = [
@@ -227,19 +225,25 @@ defmodule Aoc2020.Day11Test do
         "#.L#LL#.L#"
       ]
 
-      result = Day11.iterate_until_done2(map, %{})
+      empty_seat_fn = &Day11.no_occupied_adjacent2?/2
+      occupied_seat_fn = &Day11.crowded2?/2
+
+      result = Day11.iterate_until_done(map, %{}, empty_seat_fn, occupied_seat_fn)
 
       assert Day11.output(result, 10, 10) == expected_result
     end
 
-    test "iterate_until_done2 on input file" do
+    test "iterate_until_done on input file" do
       map =
         "test/data/day11_input.txt"
         |> File.read!()
         |> String.split("\n")
         |> Day11.parse!()
 
-      result = Day11.iterate_until_done2(map, %{})
+      empty_seat_fn = &Day11.no_occupied_adjacent2?/2
+      occupied_seat_fn = &Day11.crowded2?/2
+
+      result = Day11.iterate_until_done(map, %{}, empty_seat_fn, occupied_seat_fn)
 
       assert Day11.count_occupied_seats(result) == 2111
     end
