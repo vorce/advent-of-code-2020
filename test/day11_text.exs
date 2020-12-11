@@ -82,6 +82,21 @@ defmodule Aoc2020.Day11Test do
     end
   end
 
+  @part2_example [
+    ".......#.",
+    "...#.....",
+    ".#.......",
+    ".........",
+    "..#L....#",
+    "....#....",
+    ".........",
+    "#........",
+    "...#....."
+  ]
   describe "part 2" do
+    test "find_adjacent_seen/2" do
+      map = Day11.parse!(@part2_example)
+      assert Day11.find_adjacent_seen(map, {3, 4}, []) == []
+    end
   end
 end

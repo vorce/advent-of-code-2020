@@ -35,7 +35,7 @@ defmodule Aoc2020.Day11 do
     end
   end
 
-  def no_occupied_adjacent?(map, {x, y}) do
+  def adjacent_pos({x, y}) do
     [
       {x - 1, y},
       {x + 1, y},
@@ -46,6 +46,11 @@ defmodule Aoc2020.Day11 do
       {x + 1, y + 1},
       {x - 1, y + 1}
     ]
+  end
+
+  def no_occupied_adjacent?(map, p) do
+    p
+    |> adjacent_pos()
     |> Enum.all?(fn pos -> not occupied?(map, pos) end)
   end
 
@@ -53,18 +58,10 @@ defmodule Aoc2020.Day11 do
     Map.get(map, {x, y}) == "#"
   end
 
-  def crowded?(map, {x, y}) do
+  def crowded?(map, p) do
     occupied_adjacent =
-      [
-        {x - 1, y},
-        {x + 1, y},
-        {x, y - 1},
-        {x, y + 1},
-        {x - 1, y - 1},
-        {x + 1, y - 1},
-        {x + 1, y + 1},
-        {x - 1, y + 1}
-      ]
+      p
+      |> adjacent_pos()
       |> Enum.map(fn pos -> if occupied?(map, pos), do: 1, else: 0 end)
 
     Enum.sum(occupied_adjacent) >= 4
@@ -89,5 +86,41 @@ defmodule Aoc2020.Day11 do
     map
     |> Enum.map(fn {_pos, seat} -> if seat == "#", do: 1, else: 0 end)
     |> Enum.sum()
+  end
+
+  def adjacent_dirs() do
+    [
+      {-1, 0},
+      {1, 0},
+      {0, -1},
+      {0, 1},
+      {-1, -1},
+      {1, -1},
+      {1, 1},
+      {-1, 1}
+    ]
+  end
+
+  def find_adjacent_seen(map, {x, y}, acc) do
+    adjacent_dirs()
+    |> Enum.map(fn {dir_x, dir_y} ->
+      {new_x, new_y} = {x + dir_x, y + dir_y}
+      IO.inspect([pos: {x, y}, new: {new_x, new_y}, acc: acc], label: "ok")
+
+      case Map.get(map, {new_x, new_y}) do
+        nil ->
+          acc
+
+        "#" ->
+          IO.inspect(label: "found an occupied seat at #{inspect({new_x, new_y})}")
+          ["#" | acc]
+
+        "L" ->
+          ["L" | acc]
+
+        "." ->
+          find_adjacent_seen(map, {new_x + dir_x, new_x + dir_y}, acc)
+      end
+    end)
   end
 end
