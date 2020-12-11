@@ -85,7 +85,7 @@ defmodule Aoc2020.Day11Test do
     end
   end
 
-  @part2_empty_seat_fn &Day11.no_occupied_adjacent_seen?/2
+  @part2_empty_seat_fn &Day11.no_occupied_seen?/2
   @part2_occupied_seat_fn &Day11.crowded_seen?/2
   @part2_example [
     ".......#.",

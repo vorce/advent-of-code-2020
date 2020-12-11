@@ -35,7 +35,7 @@ defmodule Aoc2020.Day11 do
     end
   end
 
-  def no_occupied_adjacent_seen?(map, pos) do
+  def no_occupied_seen?(map, pos) do
     map
     |> adjacent_seen(pos)
     |> Enum.all?(fn seat -> seat == "L" end)
