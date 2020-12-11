@@ -17,7 +17,7 @@ defmodule Aoc2020.Day11Test do
   ]
 
   @part1_empty_seat_fn &Day11.no_occupied_adjacent?/2
-  @part1_occupied_seat_fn &Day11.crowded?/2
+  @part1_occupied_seat_fn &Day11.crowded_adjacent?/2
 
   describe "part 1" do
     test "parse/1" do

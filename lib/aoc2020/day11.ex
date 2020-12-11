@@ -81,7 +81,7 @@ defmodule Aoc2020.Day11 do
     Map.get(map, {x, y}) == "#"
   end
 
-  def crowded?(map, p) do
+  def crowded_adjacent?(map, p) do
     occupied_adjacent =
       p
       |> adjacent_pos()
