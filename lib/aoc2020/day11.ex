@@ -79,7 +79,7 @@ defmodule Aoc2020.Day11 do
     Enum.sum(occupied_adjacent) >= 4
   end
 
-  def crowded2?(map, p) do
+  def crowded_seen?(map, p) do
     seen =
       adjacent_seen(map, p)
       |> Enum.map(fn seat ->
