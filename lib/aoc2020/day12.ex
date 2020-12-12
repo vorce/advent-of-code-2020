@@ -94,12 +94,8 @@ defmodule Aoc2020.Day12 do
     end
   end
 
-  def part1_instruction(state, {cmd, more}) when cmd in ["L", "R"] do
-    rotations = div(more, 90)
-
-    Enum.reduce(1..rotations, state, fn _, acc ->
-      part1_instruction(acc, {cmd, 90})
-    end)
+  def part1_instruction(state, {cmd, val}) when cmd in ["L", "R"] do
+    rotate(state, {cmd, val}, &part1_instruction/2)
   end
 
   def part2_instruction(state, {"F", val}) do
@@ -135,10 +131,14 @@ defmodule Aoc2020.Day12 do
   end
 
   def part2_instruction(state, {cmd, val}) when cmd in ["L", "R"] do
+    rotate(state, {cmd, val}, &part2_instruction/2)
+  end
+
+  def rotate(state, {cmd, val}, instruction_fn) do
     rotations = div(val, 90)
 
     Enum.reduce(1..rotations, state, fn _, acc ->
-      part2_instruction(acc, {cmd, 90})
+      instruction_fn.(acc, {cmd, 90})
     end)
   end
 end
