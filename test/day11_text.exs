@@ -27,7 +27,7 @@ defmodule Aoc2020.Day11Test do
       assert Map.get(result, {5, 2}) == "."
     end
 
-    test "iterate/2 once on example" do
+    test "iterate/3 once on example" do
       map = Day11.parse!(@start_example)
 
       result = Day11.iterate(map, @part1_empty_seat_fn, @part1_occupied_seat_fn)
@@ -40,7 +40,7 @@ defmodule Aoc2020.Day11Test do
       end)
     end
 
-    test "iterate/2 twice on example" do
+    test "iterate/3 twice on example" do
       map = Day11.parse!(@start_example)
 
       result =
@@ -52,7 +52,7 @@ defmodule Aoc2020.Day11Test do
       assert Map.get(result, {6, 5}) == "#"
     end
 
-    test "iterate_until_done on input file" do
+    test "iterate_until_done/4 on input file" do
       map =
         "test/data/day11_input.txt"
         |> File.read!()
@@ -64,7 +64,7 @@ defmodule Aoc2020.Day11Test do
       assert Day11.count_occupied_seats(result) == 2346
     end
 
-    test "iterate_until_done on example" do
+    test "iterate_until_done/4 on example" do
       map = Day11.parse!(@start_example)
 
       expected_result = [
@@ -99,7 +99,7 @@ defmodule Aoc2020.Day11Test do
     "...#....."
   ]
   describe "part 2" do
-    test "find_adjacent_seen/2 on example" do
+    test "find_adjacent_seen/4 on example" do
       map = Day11.parse!(@part2_example)
       assert Day11.find_adjacent_seen(map, {3, 4}, {-1, 0}, []) == ["#"]
       assert Day11.find_adjacent_seen(map, {3, 4}, {0, -1}, []) == ["#"]
@@ -111,7 +111,7 @@ defmodule Aoc2020.Day11Test do
       assert Day11.find_adjacent_seen(map, {3, 4}, {1, 1}, []) == ["#"]
     end
 
-    test "find_adjacent_seen/2 on example 2" do
+    test "find_adjacent_seen/4 on example 2" do
       example2 = [
         ".............",
         ".L.L.#.#.#.#.",
@@ -130,7 +130,7 @@ defmodule Aoc2020.Day11Test do
       assert Day11.find_adjacent_seen(map, start_pos, {1, 1}, []) == []
     end
 
-    test "find_adjacent_seen/2 on example 3" do
+    test "find_adjacent_seen/4 on example 3" do
       example3 = [
         ".##.##.",
         "#.#.#.#",
@@ -153,7 +153,7 @@ defmodule Aoc2020.Day11Test do
       assert Day11.find_adjacent_seen(map, start_pos, {1, 1}, []) == []
     end
 
-    test "iterate/2 once on example" do
+    test "iterate/3 once on example" do
       map = Day11.parse!(@start_example)
 
       expected_result = [
@@ -174,7 +174,7 @@ defmodule Aoc2020.Day11Test do
       assert Day11.output(result, 10, 10) == expected_result
     end
 
-    test "iterate/2 twice on example" do
+    test "iterate/3 twice on example" do
       map = Day11.parse!(@start_example)
 
       expected_result = [
@@ -198,7 +198,7 @@ defmodule Aoc2020.Day11Test do
       assert Day11.output(result, 10, 10) == expected_result
     end
 
-    test "iterate_until_done on example" do
+    test "iterate_until_done/4 on example" do
       map = Day11.parse!(@start_example)
 
       expected_result = [
@@ -219,7 +219,7 @@ defmodule Aoc2020.Day11Test do
       assert Day11.output(result, 10, 10) == expected_result
     end
 
-    test "iterate_until_done on input file" do
+    test "iterate_until_done/4 on input file" do
       map =
         "test/data/day11_input.txt"
         |> File.read!()
