@@ -1,5 +1,5 @@
 defmodule Aoc2020.Day12 do
-  defstruct [:ew, :ns, :direction]
+  defstruct [:ew, :ns, :direction, :waypoint]
 
   def parse!(inp) do
     inp
@@ -12,19 +12,25 @@ defmodule Aoc2020.Day12 do
     {cmd, val}
   end
 
-  def manhattan_distance(instructions) do
-    start = %__MODULE__{ew: 0, ns: 0, direction: :east}
+  def manhattan_distance(instructions, instruction_interpreter) do
+    waypoint = %{ew: 10, ns: 1}
+    ship = %__MODULE__{ew: 0, ns: 0, direction: :east, waypoint: waypoint}
+
+    instruction_fn =
+      case instruction_interpreter do
+        :part1 -> &part1_instruction/2
+        :part2 -> &part2_instruction/2
+      end
 
     end_state =
-      Enum.reduce(instructions, start, fn instruction, acc ->
-        apply_instruction(acc, instruction)
-        |> IO.inspect(label: "new_state for #{inspect(instruction)}")
+      Enum.reduce(instructions, ship, fn instruction, acc ->
+        instruction_fn.(acc, instruction)
       end)
 
     abs(end_state.ew) + abs(end_state.ns)
   end
 
-  def apply_instruction(state, {"F", val}) do
+  def part1_instruction(state, {"F", val}) do
     case state.direction do
       :east ->
         %__MODULE__{state | ew: state.ew + val}
@@ -40,23 +46,23 @@ defmodule Aoc2020.Day12 do
     end
   end
 
-  def apply_instruction(state, {"N", val}) do
+  def part1_instruction(state, {"N", val}) do
     %__MODULE__{state | ns: state.ns + val}
   end
 
-  def apply_instruction(state, {"S", val}) do
+  def part1_instruction(state, {"S", val}) do
     %__MODULE__{state | ns: state.ns - val}
   end
 
-  def apply_instruction(state, {"E", val}) do
+  def part1_instruction(state, {"E", val}) do
     %__MODULE__{state | ew: state.ew + val}
   end
 
-  def apply_instruction(state, {"W", val}) do
+  def part1_instruction(state, {"W", val}) do
     %__MODULE__{state | ew: state.ew - val}
   end
 
-  def apply_instruction(state, {"R", 90}) do
+  def part1_instruction(state, {"R", 90}) do
     case state.direction do
       :east ->
         %__MODULE__{state | direction: :south}
@@ -72,7 +78,7 @@ defmodule Aoc2020.Day12 do
     end
   end
 
-  def apply_instruction(state, {"L", 90}) do
+  def part1_instruction(state, {"L", 90}) do
     case state.direction do
       :east ->
         %__MODULE__{state | direction: :north}
@@ -88,11 +94,51 @@ defmodule Aoc2020.Day12 do
     end
   end
 
-  def apply_instruction(state, {cmd, more}) when cmd in ["L", "R"] do
+  def part1_instruction(state, {cmd, more}) when cmd in ["L", "R"] do
     rotations = div(more, 90)
 
     Enum.reduce(1..rotations, state, fn _, acc ->
-      apply_instruction(acc, {cmd, 90})
+      part1_instruction(acc, {cmd, 90})
+    end)
+  end
+
+  def part2_instruction(state, {"F", val}) do
+    %__MODULE__{
+      state
+      | ew: state.ew + state.waypoint.ew * val,
+        ns: state.ns + state.waypoint.ns * val
+    }
+  end
+
+  def part2_instruction(state, {"N", val}) do
+    %__MODULE__{state | waypoint: %{state.waypoint | ns: state.waypoint.ns + val}}
+  end
+
+  def part2_instruction(state, {"S", val}) do
+    %__MODULE__{state | waypoint: %{state.waypoint | ns: state.waypoint.ns - val}}
+  end
+
+  def part2_instruction(state, {"E", val}) do
+    %__MODULE__{state | waypoint: %{state.waypoint | ew: state.waypoint.ew + val}}
+  end
+
+  def part2_instruction(state, {"W", val}) do
+    %__MODULE__{state | waypoint: %{state.waypoint | ew: state.waypoint.ew - val}}
+  end
+
+  def part2_instruction(state, {"R", 90}) do
+    %__MODULE__{state | waypoint: %{ew: state.waypoint.ns, ns: state.waypoint.ew * -1}}
+  end
+
+  def part2_instruction(state, {"L", 90}) do
+    %__MODULE__{state | waypoint: %{ew: state.waypoint.ns * -1, ns: state.waypoint.ew}}
+  end
+
+  def part2_instruction(state, {cmd, val}) when cmd in ["L", "R"] do
+    rotations = div(val, 90)
+
+    Enum.reduce(1..rotations, state, fn _, acc ->
+      part2_instruction(acc, {cmd, 90})
     end)
   end
 end
