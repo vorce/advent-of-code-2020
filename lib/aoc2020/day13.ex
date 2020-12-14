@@ -99,6 +99,21 @@ defmodule Aoc2020.Day13 do
     end)
   end
 
+  def candidates2(requirements, start \\ 0) do
+    Stream.iterate(start, &(&1 + bus))
+    |> Stream.reject(fn timestamp -> invalid?(timestamp, remaining_requirements, offset) end)
+    |> Stream.map(fn timestamp -> timestamp - offset end)
+  end
+
+  def iterate_with(reqs, start, step) do
+    {offset, _bus} = hd(reqs)
+    remaining_requirements = Enum.drop(reqs, 1)
+
+    Stream.iterate(start, &(&1 + step))
+    |> Stream.reject(fn timestamp -> invalid?(timestamp, remaining_requirements, offset) end)
+    |> Stream.map(fn timestamp -> timestamp - offset end)
+  end
+
   ### From rosetta code on how to find modular inverse
   # https://rosettacode.org/wiki/Modular_inverse#Elixir
 
@@ -120,4 +135,13 @@ defmodule Aoc2020.Day13 do
     if g != 1, do: raise("The maths are broken!")
     rem(x + et, et)
   end
+
+  ## LCM
+  # https://www.programming-idioms.org/idiom/75/compute-lcm/983/elixir
+  def gcd(a, 0), do: a
+  def gcd(0, b), do: b
+  def gcd(a, b), do: gcd(b, rem(a, b))
+
+  def lcm(0, 0), do: 0
+  def lcm(a, b), do: a * b / gcd(a, b)
 end

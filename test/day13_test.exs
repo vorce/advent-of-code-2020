@@ -136,6 +136,60 @@ defmodule Aoc2020.Day13Test do
       assert Day13.candidates(reqs) |> Stream.take(1) |> Enum.to_list() == [1_202_161_486]
     end
 
+    @tag timeout: :infinity
+    test "candidates/1 on input file" do
+      requirements =
+        "test/data/day13_input.txt"
+        |> File.read!()
+        |> String.split("\n")
+        |> Day13.parse2!()
+        |> IO.inspect(label: "reqs")
+
+      # assert 1 == 1
+      reqs = %{29 => 631, 60 => 383, 70 => 41, 23 => 37, 0 => 29, 52 => 23, 48 => 19}
+      # %{29 => 631, 60 => 383} = [211356, 453029, 694702]
+      # %{29 => 631, 60 => 383, 70 => 41} = [5044816, 14953409, 24862002]
+      # %{0 => 211356, 70 => 41} = [2536272, 11201868, 19867464]
+      # assert Day13.candidates(reqs) |> Stream.take(3) |> Enum.to_list() == []
+      # LCM(631, 383) = 241673
+      # LCM(241673, 41) = 9908593
+      # 5044816 + 9908593
+      # Day13.iterate_with(requirements, 211_356) == 894_954_360_381_385
+      #
+      # %{29 => 631, 60 => 383, 70 => 41, 23 => 37, 0 => 29, 52 => 23}
+      # Start timestamp: 203844620012
+      # step_size: 244534166647
+
+      # first hit: 211356
+      # second hit: 211356 + lcm(631, 383) = 211356 + 241673 = 453029
+
+      # [ts] = Day13.candidates(reqs) |> Stream.take(1) |> Enum.to_list()
+      # IO.puts("Start timestamp: #{ts}")
+
+      step_size =
+        reqs
+        |> Map.values()
+        |> Enum.reduce(1, fn val, acc ->
+          Day13.lcm(acc, val) |> round()
+        end)
+        |> IO.inspect(label: "step_size")
+
+      # bla___ = 4_646_149_166_293
+      # bla_40 = 185_845_966_651_720
+      # foo___ = 894_954_360_381_385
+      # #      1_026_798_965_750_753
+      # assert 1 == 1
+      foo = 929229833258600
+
+      assert Day13.iterate_with(requirements, 0, step_size)
+             |> Stream.take(1)
+             |> Enum.to_list() ==
+               [
+                 894_954_360_381_385
+                 929_229_833_258_60
+               ]
+    end
+
     test "find_two_slowest/2" do
       assert Day13.find_two_slowest({4, 59}, {6, 31}) |> Stream.take(1) |> Enum.to_list() == [649]
 
@@ -148,7 +202,6 @@ defmodule Aoc2020.Day13Test do
       assert Day13.find_with_maths(reqs) == 1_068_781
     end
 
-    @tag timeout: :infinity
     test "find_with_maths/1 on input file" do
       requirements =
         "test/data/day13_input.txt"
