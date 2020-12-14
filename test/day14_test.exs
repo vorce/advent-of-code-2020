@@ -12,15 +12,12 @@ defmodule Aoc2020.Day14Test do
 
   describe "part 1" do
     test "parse!/1" do
-      assert Day14.parse!(@example) == %Day14{
-               # "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X"
-               mask: %{1 => 0, 6 => 1},
-               instructions: [
-                 %{op: :mem, i: 8, val: 11},
-                 %{op: :mem, i: 7, val: 101},
-                 %{op: :mem, i: 8, val: 0}
-               ]
-             }
+      assert Day14.parse!(@example) == [
+               %{op: :mask, val: %{1 => 0, 6 => 1}},
+               %{op: :mem, i: 8, val: 11},
+               %{op: :mem, i: 7, val: 101},
+               %{op: :mem, i: 8, val: 0}
+             ]
     end
 
     test "execute/1" do
@@ -45,11 +42,12 @@ defmodule Aoc2020.Day14Test do
         "test/data/day14_input.txt"
         |> File.read!()
         |> String.split("\n")
+        |> Enum.reject(fn line -> line == "" end)
         |> Day14.parse!()
 
       mem = Day14.execute(prog)
 
-      assert Day14.sum_memory(mem) == 165
+      assert Day14.sum_memory(mem) == 6_317_049_172_545
     end
   end
 

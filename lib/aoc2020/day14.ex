@@ -1,23 +1,28 @@
 defmodule Aoc2020.Day14 do
   defstruct [:mask, :instructions]
 
-  def parse!([mask | instructions]) do
-    instructions = Enum.map(instructions, &parse_instruction/1)
-    # mask =
-    mask =
-      mask
+  def parse!(lines) do
+    Enum.map(lines, fn line ->
+      line
       |> String.codepoints()
-      |> Enum.drop(7)
+      |> parse_instruction()
+    end)
+  end
+
+  def parse_instruction(["m", "a", "s", "k", " ", "=", " " | val]) do
+    val =
+      val
       |> Enum.reverse()
       |> Enum.with_index()
       |> Enum.reject(fn {elem, _index} -> elem == "X" end)
       |> Enum.into(%{}, fn {elem, index} -> {index, String.to_integer(elem)} end)
 
-    %__MODULE__{mask: mask, instructions: instructions}
+    %{op: :mask, val: val}
   end
 
-  def parse_instruction(line) do
+  def parse_instruction(mem) do
     # mem[8] = 11
+    line = Enum.join(mem)
     [op, val] = String.split(line, " = ")
     [op, index] = String.split(op, "[")
 
@@ -28,20 +33,27 @@ defmodule Aoc2020.Day14 do
     }
   end
 
-  def execute(prog) do
-    Enum.reduce(prog.instructions, %{}, fn instruction, acc ->
-      run_instruction(instruction, acc, prog.mask)
-    end)
+  def execute(instructions) do
+    {mem, _mask} =
+      Enum.reduce(instructions, {%{}, %{}}, fn instruction, {mem, mask} ->
+        run_instruction(instruction, mem, mask)
+      end)
+
+    mem
   end
 
-  def run_instruction(instruction, acc, mask) do
+  def run_instruction(%{op: :mem} = instruction, mem, mask) do
     new_val = apply_mask(instruction.val, mask)
 
     if new_val != 0 do
-      Map.put(acc, instruction.i, new_val)
+      {Map.put(mem, instruction.i, new_val), mask}
     else
-      acc
+      {mem, mask}
     end
+  end
+
+  def run_instruction(%{op: :mask} = instruction, mem, _mask) do
+    {mem, instruction.val}
   end
 
   def apply_mask(value, mask) do
