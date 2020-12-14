@@ -10,14 +10,20 @@ defmodule Aoc2020.Day14 do
   end
 
   def parse_instruction(["m", "a", "s", "k", " ", "=", " " | val]) do
-    val =
+    map =
       val
       |> Enum.reverse()
       |> Enum.with_index()
-      |> Enum.reject(fn {elem, _index} -> elem == "X" end)
-      |> Enum.into(%{}, fn {elem, index} -> {index, String.to_integer(elem)} end)
+      # |> Enum.reject(fn {elem, _index} -> elem == "X" end)
+      |> Enum.into(%{}, fn {elem, index} ->
+        if elem == "X" do
+          {index, elem}
+        else
+          {index, String.to_integer(elem)}
+        end
+      end)
 
-    %{op: :mask, val: val}
+    %{op: :mask, val: map}
   end
 
   def parse_instruction(mem) do
@@ -42,17 +48,64 @@ defmodule Aoc2020.Day14 do
     mem
   end
 
+  def execute2(instructions) do
+    {mem, _mask} =
+      Enum.reduce(instructions, {%{}, %{}}, fn instruction, {mem, mask} ->
+        run_instruction2(instruction, mem, mask)
+      end)
+
+    mem
+  end
+
+  def mask_to_string(mask_map) do
+    Enum.reduce(35..0, "", fn i, acc -> "#{acc}#{Map.get(mask_map, i)}" end)
+  end
+
+  def run_instruction2(%{op: :mask} = instruction, mem, _mask) do
+    {mem, instruction.val}
+  end
+
   def run_instruction2(%{op: :mem} = instruction, mem, mask) do
+    # IO.inspect(binding(), label: "Setting mem")
+
     result =
       instruction.i
       |> binary_map()
       |> apply_mask2(mask)
 
-    # expand_floating(result, [])
+    result_size = map_size(result)
+
+    new_mem =
+      Enum.reduce(result, tree(), fn {_k, v}, acc ->
+        add(acc, v)
+      end)
+      |> paths([])
+      |> Enum.chunk_by(fn x -> x == nil end)
+      |> Enum.reject(fn x ->
+        res = length(x) != result_size
+        res
+      end)
+      |> Enum.into(%{}, fn path ->
+        key =
+          Enum.with_index(path)
+          |> Enum.into(%{}, fn {elem, index} -> {index, elem} end)
+          |> to_decimal()
+
+        {key, instruction.val}
+      end)
+
+    # |> IO.inspect(label: "write to mem")
+
+    {Map.merge(mem, new_mem), mask}
   end
 
   def apply_mask2(bin_map, mask_map) do
-    Map.merge(bin_map, mask_map)
+    Enum.reduce(0..(map_size(mask_map) - 1), %{}, fn i, acc ->
+      case Map.get(mask_map, i) do
+        0 -> Map.put(acc, i, Map.get(bin_map, i, 0))
+        other -> Map.put(acc, i, other)
+      end
+    end)
   end
 
   # %{1 => "X", 2 => 1, 3 => "X"} => %{1 => 1, 2 => 1, 3 => 1}, %{1 => 0, 2 => 1, 3 => 1}, %{1 => 1, 2 => 1, 3 => 0}, %{1 => 0, 2 => 1, 3 => 0}
@@ -172,7 +225,11 @@ defmodule Aoc2020.Day14 do
     binary_val = binary_map(value)
 
     Map.merge(binary_val, mask)
-    |> Enum.reduce(0, fn {index, val}, acc ->
+    |> to_decimal()
+  end
+
+  def to_decimal(bin_map) do
+    Enum.reduce(bin_map, 0, fn {index, val}, acc ->
       new_val = round(:math.pow(2, index)) * val
       result = acc + new_val
       result
