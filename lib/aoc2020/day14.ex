@@ -1,11 +1,17 @@
 defmodule Aoc2020.Day14 do
   defstruct [:mask, :instructions]
 
-  def parse!(lines) do
+  def parse!(lines, part) do
+    parse_line_fn =
+      case part do
+        :part1 -> &parse_instruction/1
+        :part2 -> &parse_instruction2/1
+      end
+
     Enum.map(lines, fn line ->
       line
       |> String.codepoints()
-      |> parse_instruction()
+      |> parse_line_fn.()
     end)
   end
 
@@ -14,7 +20,7 @@ defmodule Aoc2020.Day14 do
       val
       |> Enum.reverse()
       |> Enum.with_index()
-      # |> Enum.reject(fn {elem, _index} -> elem == "X" end)
+      |> Enum.reject(fn {elem, _index} -> elem == "X" end)
       |> Enum.into(%{}, fn {elem, index} ->
         if elem == "X" do
           {index, elem}
@@ -27,7 +33,6 @@ defmodule Aoc2020.Day14 do
   end
 
   def parse_instruction(mem) do
-    # mem[8] = 11
     line = Enum.join(mem)
     [op, val] = String.split(line, " = ")
     [op, index] = String.split(op, "[")
@@ -39,19 +44,36 @@ defmodule Aoc2020.Day14 do
     }
   end
 
-  def execute(instructions) do
-    {mem, _mask} =
-      Enum.reduce(instructions, {%{}, %{}}, fn instruction, {mem, mask} ->
-        run_instruction(instruction, mem, mask)
+  def parse_instruction2(["m", "a", "s", "k", " ", "=", " " | val]) do
+    map =
+      val
+      |> Enum.reverse()
+      |> Enum.with_index()
+      |> Enum.into(%{}, fn {elem, index} ->
+        if elem == "X" do
+          {index, elem}
+        else
+          {index, String.to_integer(elem)}
+        end
       end)
 
-    mem
+    %{op: :mask, val: map}
   end
 
-  def execute2(instructions) do
+  def parse_instruction2(mem) do
+    parse_instruction(mem)
+  end
+
+  def execute(instructions, part) do
+    run_fn =
+      case part do
+        :part1 -> &run_instruction/3
+        :part2 -> &run_instruction2/3
+      end
+
     {mem, _mask} =
       Enum.reduce(instructions, {%{}, %{}}, fn instruction, {mem, mask} ->
-        run_instruction2(instruction, mem, mask)
+        run_fn.(instruction, mem, mask)
       end)
 
     mem
@@ -62,11 +84,12 @@ defmodule Aoc2020.Day14 do
   end
 
   def run_instruction2(%{op: :mask} = instruction, mem, _mask) do
+    IO.puts("Setting mask: #{mask_to_string(instruction.val)}")
     {mem, instruction.val}
   end
 
   def run_instruction2(%{op: :mem} = instruction, mem, mask) do
-    # IO.inspect(binding(), label: "Setting mem")
+    IO.puts("Running instruction: #{instruction.i}")
 
     result =
       instruction.i
@@ -76,16 +99,14 @@ defmodule Aoc2020.Day14 do
     result_size = map_size(result)
 
     new_mem =
-      Enum.reduce(result, tree(), fn {_k, v}, acc ->
-        add(acc, v)
-      end)
+      result
+      |> build_tree()
       |> paths([])
-      |> Enum.chunk_by(fn x -> x == nil end)
+      |> Enum.chunk_by(fn node -> node == nil end)
       |> Enum.reject(fn x ->
-        res = length(x) != result_size
-        res
+        length(x) != result_size
       end)
-      |> Enum.into(%{}, fn path ->
+      |> Enum.into(%{}, fn {:ok, path} ->
         key =
           Enum.with_index(path)
           |> Enum.into(%{}, fn {elem, index} -> {index, elem} end)
@@ -94,9 +115,13 @@ defmodule Aoc2020.Day14 do
         {key, instruction.val}
       end)
 
-    # |> IO.inspect(label: "write to mem")
-
     {Map.merge(mem, new_mem), mask}
+  end
+
+  defp build_tree(mask_on_address_map) do
+    Enum.reduce(mask_on_address_map, tree(), fn {_k, v}, acc ->
+      add(acc, v)
+    end)
   end
 
   def apply_mask2(bin_map, mask_map) do
@@ -107,103 +132,6 @@ defmodule Aoc2020.Day14 do
       end
     end)
   end
-
-  # %{1 => "X", 2 => 1, 3 => "X"} => %{1 => 1, 2 => 1, 3 => 1}, %{1 => 0, 2 => 1, 3 => 1}, %{1 => 1, 2 => 1, 3 => 0}, %{1 => 0, 2 => 1, 3 => 0}
-  # %{1 => "X", 2 => 1, 3 => "X"}. %{2 => 1, 3 => "X"}, [%{1 => 0, 2 => 1, 3 => "X"}, %{1 => 1, 2 => 1, 3 => "X"}]
-  # def expand_floating(map, acc) when map_size(map) == 0, do: acc
-
-  # def expand_floating(map, acc) do
-  #   IO.inspect(binding(), label: "expand_floating")
-  #   has_floating? = Map.values(map) |> Enum.any?(fn val -> val == "X" end)
-
-  #   if has_floating? do
-  #     Enum.reduce(map, acc, fn {k, v}, sub_acc ->
-  #       if v == "X" do
-  #         IO.inspect([k: k, v: v], label: "found X")
-  #         # without_k = Map.drop(map, [k])
-  #         expand_floating(Map.drop(map, [k]), sub_acc)
-  #         |> Enum.flat_map(fn m ->
-  #           [Map.put(m, k, 0), Map.put(m, k, 1) | sub_acc]
-  #         end)
-  #         |> IO.inspect(label: "result")
-  #       else
-  #         sub_acc
-  #       end
-  #     end)
-  #   else
-  #     acc
-  #   end
-  # end
-
-  # def expand_floating(map, acc) when map_size(map) == 0, do: acc
-
-  # def expand_floating(map, acc) when map_size(map) == 1 do
-  #   [val] = Map.values(map)
-
-  #   if val == "X" do
-  #     [key] = Map.keys(map)
-  #     [Map.put(map, key, 1), Map.put(map, key, 0)]
-  #   else
-  #     [map | acc]
-  #   end
-  # end
-
-  # def expand_floating(map, acc) do
-  #   has_floating? = Enum.any?(map, fn {_k, v} -> v == "X" end)
-
-  #   if has_floating? do
-  #     do_expand_floating(map, acc)
-  #   else
-  #     acc
-  #   end
-  # end
-
-  # %{0 => X, 1 => 1}
-  # 1: %{0 => 0, 1 => 1}, [] ->
-  # def do_expand_floating(map, acc) do
-  #   IO.inspect(binding(), label: "expand_floating")
-
-  #   Enum.reduce(map, acc, fn {k, v}, sub ->
-  #     if v == "X" do
-  #       without_k = Map.drop(map, [k])
-
-  #       new_sub_acc =
-  #         Enum.reduce(sub, [], fn m, ss ->
-  #           [Map.merge(m, Map.put(without_k, k, 0)), Map.merge(m, Map.put(without_k, k, 1)) | ss]
-  #         end)
-  #         |> IO.inspect(label: "new_sub_acc")
-
-  #       expand_floating(without_k, new_sub_acc)
-  #       |> IO.inspect(label: "result")
-  #     else
-  #       sub |> IO.inspect(label: "sub when not a floating")
-  #     end
-  #   end)
-  # end
-
-  # %{0=>X} -> [%{0 => 0}, %{0 => 1}]
-  def float_combs(map, acc) when map_size(map) == 0 do
-    Enum.reverse(acc)
-  end
-
-  def float_combs(map, acc) do
-    IO.inspect(binding(), label: "float_combs")
-
-    Enum.reduce(map, acc, fn {k, v}, sub ->
-      if v == "X" do
-        float_combs(Map.drop(map, [k]), [Map.put(map, k, 0), Map.put(map, k, 1) | sub])
-        # res = float_combs(Map.drop(map, [k]), sub)
-        # [Map.put(map, k, 0), Map.put(map, k, 1) | sub])
-      else
-        sub
-      end
-    end)
-  end
-
-  def permutations([]), do: [[]]
-
-  def permutations(list),
-    do: for(elem <- list, rest <- permutations(list -- [elem]), do: [elem | rest])
 
   def run_instruction(%{op: :mem} = instruction, mem, mask) do
     new_val = apply_mask(instruction.val, mask)
@@ -220,8 +148,6 @@ defmodule Aoc2020.Day14 do
   end
 
   def apply_mask(value, mask) do
-    # Integer.digits(11, 2)
-    # [1, 0, 1, 1]
     binary_val = binary_map(value)
 
     Map.merge(binary_val, mask)
@@ -248,51 +174,6 @@ defmodule Aoc2020.Day14 do
     mem
     |> Map.values()
     |> Enum.sum()
-  end
-
-  # "X1101X" => ["011010", "011011", "111010", "111011"]
-  # sub problem: "X1101X" => ["01101X", "11101X"]
-  def foo(s) do
-    map =
-      s
-      |> String.codepoints()
-      |> Enum.reverse()
-      |> Enum.with_index()
-      |> Enum.into(%{}, fn {elem, index} -> {index, elem} end)
-
-    Enum.reduce(map, [], fn {k, v}, acc ->
-      if v == "X" do
-        [Map.put(map, k, "0"), Map.put(map, k, "1") | acc]
-      else
-        acc
-      end
-    end)
-    # |> IO.inspect(label: "reduced")
-    |> Enum.map(fn m ->
-      Enum.reduce(m, "", fn {_k, v}, acc -> acc <> v end)
-    end)
-  end
-
-  def expand(map, pos, orig_map) when is_map(map) do
-    Enum.reduce_while(map, [], fn {k, v}, acc ->
-      if v == "X" and k >= pos do
-        {:halt, {k + 1, [Map.put(map, k, 0), Map.put(map, k, 1) | acc]}}
-      else
-        {:cont, acc}
-      end
-    end)
-  end
-
-  def expand(maps, pos, orig_map) when is_list(maps) do
-    Enum.reduce(maps, {pos, []}, fn map, {p, acc} ->
-      case expand(map, 1, map) do
-        {np, res} ->
-          {np, [res | acc]}
-
-        _res ->
-          {p + 1, acc}
-      end
-    end)
   end
 
   def tree(), do: %{val: nil, left: nil, right: nil}
