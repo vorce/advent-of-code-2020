@@ -1,5 +1,7 @@
 defmodule Aoc2020.Day15 do
   def number(start_numbers, turn_target) do
+    start_nr_count = length(start_numbers)
+
     numbers_to_turns =
       Enum.with_index(start_numbers)
       |> Enum.into(%{}, fn {elem, index} -> {elem, [index + 1]} end)
@@ -8,14 +10,14 @@ defmodule Aoc2020.Day15 do
       Enum.with_index(start_numbers)
       |> Enum.into(%{}, fn {elem, index} -> {index + 1, elem} end)
 
-    if turn_target < length(start_numbers) do
+    if turn_target <= start_nr_count do
       Map.get(turns_to_numbers, turn_target)
     else
       last_spoken =
         Enum.reverse(start_numbers)
         |> List.first()
 
-      turn = length(start_numbers) + 1
+      turn = start_nr_count + 1
       do_next_turn(numbers_to_turns, last_spoken, turn, turn_target)
     end
   end
