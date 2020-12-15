@@ -16,11 +16,11 @@ defmodule Aoc2020.Day15 do
         |> List.first()
 
       turn = length(start_numbers) + 1
-      do_next_turn(numbers_to_turns, turns_to_numbers, last_spoken, turn, turn_target)
+      do_next_turn(numbers_to_turns, last_spoken, turn, turn_target)
     end
   end
 
-  def do_next_turn(numbers_to_turns, turns_to_numbers, last_spoken, turn, turn_target) do
+  def do_next_turn(numbers_to_turns, last_spoken, turn, turn_target) do
     if rem(turn, 100_000) == 0 do
       IO.puts("Turn #{turn}/#{turn_target} ...")
     end
@@ -40,27 +40,10 @@ defmodule Aoc2020.Day15 do
     else
       do_next_turn(
         Map.update(numbers_to_turns, spoken, [turn], fn ts -> [turn, hd(ts)] end),
-        Map.put(turns_to_numbers, turn, spoken),
         spoken,
         turn + 1,
         turn_target
       )
     end
   end
-
-  # if turn == turn_target do
-  #   turn_nr
-  # else
-  #   case Map.get(numbers_to_turns, last_spoken) do
-  #     nil -> 0
-  #     val ->
-  #   end
-  #   do_next_turn(
-  #     Map.put(numbers_to_turns, turn_nr, turn),
-  #     Map.put(turns_to_numbers, turn, turn_nr),
-  #     turn_nr,
-  #     turn + 1,
-  #     turn_target
-  #   )
-  # end
 end
