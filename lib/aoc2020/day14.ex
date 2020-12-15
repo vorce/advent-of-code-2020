@@ -64,6 +64,21 @@ defmodule Aoc2020.Day14 do
     parse_instruction(mem)
   end
 
+  def execute_async(instructions, part) do
+    instructions
+    |> Enum.chunk_by(fn ins -> ins.op == :mask end)
+    |> Enum.chunk_every(2)
+    |> Task.async_stream(
+      fn chunk ->
+        chunk
+        |> List.flatten()
+        |> execute(part)
+      end,
+      timeout: :timer.hours(1)
+    )
+    |> Enum.reduce(%{}, fn {:ok, elem}, acc -> Map.merge(acc, elem) end)
+  end
+
   def execute(instructions, part) do
     run_fn =
       case part do
@@ -106,7 +121,7 @@ defmodule Aoc2020.Day14 do
       |> Enum.reject(fn x ->
         length(x) != result_size
       end)
-      |> Enum.into(%{}, fn {:ok, path} ->
+      |> Enum.into(%{}, fn path ->
         key =
           Enum.with_index(path)
           |> Enum.into(%{}, fn {elem, index} -> {index, elem} end)

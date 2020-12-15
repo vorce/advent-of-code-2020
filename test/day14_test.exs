@@ -127,6 +127,21 @@ defmodule Aoc2020.Day14Test do
     end
 
     @tag timeout: :infinity
+    test "execute_async on input file" do
+      prog =
+        "test/data/day14_input.txt"
+        |> File.read!()
+        |> String.split("\n")
+        |> Enum.reject(fn line -> line == "" end)
+        |> Day14.parse!(:part2)
+
+      mem = Day14.execute_async(prog, :part2)
+
+      # 3404936041419: That's not the right answer; your answer is too low.
+      assert Day14.sum_memory(mem) == 3_434_009_980_379
+    end
+
+    @tag timeout: :infinity
     test "execute2 on part of input file" do
       prog =
         [
@@ -165,9 +180,10 @@ defmodule Aoc2020.Day14Test do
         ]
         |> Day14.parse!(:part2)
 
-      mem = Day14.execute(prog, :part2)
+      mem = Day14.execute_async(prog, :part2)
+      # mem = Day14.execute(prog, :part2)
 
-      assert Day14.sum_memory(mem) == 3_434_009_980_379
+      assert Day14.sum_memory(mem) == 189_540_614_096
     end
   end
 end
