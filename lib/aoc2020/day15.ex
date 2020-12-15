@@ -21,39 +21,30 @@ defmodule Aoc2020.Day15 do
   end
 
   def do_next_turn(numbers_to_turns, turns_to_numbers, last_spoken, turn, turn_target) do
-    IO.inspect(binding(), label: "Turn #{turn}")
+    if rem(turn, 100_000) == 0 do
+      IO.puts("Turn #{turn}/#{turn_target} ...")
+    end
 
-    case Map.get(numbers_to_turns, last_spoken) do
-      [_val] ->
-        spoken = 0
+    spoken =
+      case Map.get(numbers_to_turns, last_spoken) do
+        [_val] ->
+          0
 
-        if turn == turn_target do
-          spoken
-        else
-          do_next_turn(
-            Map.update(numbers_to_turns, spoken, [turn], fn ts -> [turn, hd(ts)] end),
-            Map.put(turns_to_numbers, turn, spoken),
-            spoken,
-            turn + 1,
-            turn_target
-          )
-        end
+        [_first, val] ->
+          last_turn = turn - 1
+          last_turn - val
+      end
 
-      [_first, val] ->
-        last_turn = turn - 1
-        spoken = last_turn - val
-
-        if turn == turn_target do
-          spoken
-        else
-          do_next_turn(
-            Map.update(numbers_to_turns, spoken, [turn], fn ts -> [turn, hd(ts)] end),
-            Map.put(turns_to_numbers, turn, spoken),
-            spoken,
-            turn + 1,
-            turn_target
-          )
-        end
+    if turn == turn_target do
+      spoken
+    else
+      do_next_turn(
+        Map.update(numbers_to_turns, spoken, [turn], fn ts -> [turn, hd(ts)] end),
+        Map.put(turns_to_numbers, turn, spoken),
+        spoken,
+        turn + 1,
+        turn_target
+      )
     end
   end
 

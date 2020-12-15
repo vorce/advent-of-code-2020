@@ -46,5 +46,17 @@ defmodule Aoc2020.Day15Test do
   end
 
   describe "part 2" do
+    @tag timeout: :infinity
+    test "example 1" do
+      nrs = [0, 3, 6]
+      assert Day15.number(nrs, 30_000_000) == 175_594
+    end
+
+    @tag timeout: :infinity
+    test "on input" do
+      nrs = [14, 1, 17, 0, 3, 20]
+      # Finished in 139.9 seconds
+      assert Day15.number(nrs, 30_000_000) == 6428
+    end
   end
 end
