@@ -2,18 +2,15 @@ defmodule Aoc2020.Day17 do
   def parse(lines, z \\ 0) do
     lines
     |> Enum.with_index()
-    |> Enum.reduce(%{}, fn {line, y}, row_acc ->
+    |> Enum.flat_map(fn {line, y} ->
       line
       |> String.codepoints()
       |> Enum.with_index()
-      |> Enum.reduce(row_acc, fn {c, x}, col_acc ->
-        neighbors({x, y, z})
-        |> Enum.reduce(col_acc, fn n, acc ->
-          if Map.has_key?(acc, n), do: acc, else: Map.put(acc, n, ".")
-        end)
-        |> Map.put({x, y, z}, c)
+      |> Enum.map(fn {c, x} ->
+        {{x, y, z}, c}
       end)
     end)
+    |> Enum.into(%{})
   end
 
   # (x,y,z), there exists a single cube which is either active or inactive
@@ -85,42 +82,20 @@ defmodule Aoc2020.Day17 do
   end
 
   def tick(world) do
-    # world_with_edges =
-    #   Enum.reduce(world, %{}, fn pos, acc ->
-    #     nil
-    #   end)
+    keys = Map.keys(world)
+    {{min_x, _, _}, {max_x, _, _}} = Enum.min_max_by(keys, fn {x, _y, _z} -> x end)
+    {{_, min_y, _}, {_, max_y, _}} = Enum.min_max_by(keys, fn {_x, y, _z} -> y end)
+    {{_, _, min_z}, {_, _, max_z}} = Enum.min_max_by(keys, fn {_x, _y, z} -> z end)
 
-    Enum.reduce(world, %{}, fn {pos, val}, acc ->
-      n = next(world, pos, val)
-      Map.put(acc, pos, n)
-    end)
-  end
-
-  def include_edges(world) do
-    default = %{min_x: 999, max_x: -999, min_y: 999, max_y: -999, min_z: 999, max_z: -999}
-
-    min_max =
-      Enum.reduce(world, default, fn {{x, y, z}, _}, acc ->
-        min_x = min(acc.min_x, x)
-        max_x = max(acc.max_x, x)
-        min_y = min(acc.min_y, y)
-        max_y = max(acc.max_y, y)
-        min_z = min(acc.min_z, z)
-        max_z = max(acc.max_z, z)
-
-        Map.put(acc, :min_x, min_x)
-        |> Map.put(:max_x, max_x)
-        |> Map.put(:min_y, min_y)
-        |> Map.put(:max_y, max_y)
-        |> Map.put(:min_z, min_z)
-        |> Map.put(:max_z, max_z)
-      end)
-
-    Enum.reduce(world, %{}, fn {{x, y, z}, val} ->
-      nil
-      # if x == min_x do
-      #   ns = neighbors({x, y, z})
-      # end
+    Enum.reduce((min_z - 1)..(max_z + 1), %{}, fn z, z_acc ->
+      Map.merge(z_acc, Enum.reduce((min_x - 1)..(max_x + 1), %{}, fn x, x_acc ->
+        Map.merge(x_acc, Enum.reduce((min_y - 1)..(max_y + 1), %{}, fn y, z_acc ->
+          pos = {x, y, z}
+          val = Map.get(world, pos, ".")
+          n = next(world, pos, val)
+          Map.put(z_acc, pos, n)
+        end))
+      end))
     end)
   end
 end
